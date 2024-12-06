@@ -3,5 +3,7 @@ const logger = (req, res, next) => {
     next();
   };
   
+  const config = require('../../config/config.js');
+
   module.exports = logger;
   
