@@ -1,9 +1,10 @@
 {
   "name": "discount-chat-frontend",
   "version": "1.0.0",
+  "proxy": "http://localhost:3000",
   "main": "index.js",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env PORT=5000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -13,14 +14,20 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
+    "@mui/material": "^6.1.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "semver": "^7.6.3",
+    "shell-quote": "^1.8.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
+    "cross-env": "^7.0.3",
     "web-vitals": "^4.2.4"
   },
   "browserslist": {

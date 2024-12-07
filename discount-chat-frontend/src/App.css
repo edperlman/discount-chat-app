@@ -2,3 +2,43 @@
   text-align: center;
   font-family: Arial, sans-serif;
 }
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* Container */
+div {
+  padding: 20px;
+}
+
+/* User Card Styles */
+.user-card {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.user-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.user-card h3 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #007bff;
+}
+
+.user-card p {
+  margin: 5px 0 0;
+  color: #555;
+  font-size: 0.9em;
+}

@@ -1,10 +1,11 @@
+import './App.css'; // Ensure this is at the top
 import React from 'react';
-import './App.css';
+import UserList from './components/UserList';
 
 function App() {
   return (
-    <div className="App">
-      <h1>Welcome to Discount Chat Frontend</h1>
+    <div>
+      <UserList />
     </div>
   );
 }
