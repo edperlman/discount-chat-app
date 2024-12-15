@@ -20,10 +20,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 2  # Fetch the last two commits for PRs
 
       - run: git checkout HEAD^2
         if: ${{ github.event_name == 'pull_request' }}
+
+      # Step to verify GITHUB_TOKEN permissions
+      - name: Verify GITHUB_TOKEN Permissions
+        run: |
+          echo "Testing GITHUB_TOKEN permissions..."
+          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/${{ github.repository }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
