@@ -1,22 +1,19 @@
 name: 'Code scanning - action'
 
-on:
+on: 
   push:
-    branches-ignore:
-      - dependabot/**
+    branches: [main, develop]  # Trigger the workflow on pushes to 'main' and 'develop'
   pull_request:
-  schedule:
-    - cron: '0 13 * * *'
-
-# Add permissions block here
-permissions:
-  contents: read
-  security-events: write
+    branches: [main, develop]  # Trigger the workflow on pull requests to 'main' and 'develop'
 
 jobs:
   CodeQL-Build:
     # CodeQL runs on ubuntu-latest and windows-latest
     runs-on: ubuntu-latest
+
+    permissions: 
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout repository
@@ -34,12 +31,11 @@ jobs:
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
-        # Override language selection by uncommenting this and choosing your languages
         with:
-          languages: javascript
+          languages: javascript  # Override language selection if necessary
 
-      # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-      # If this step fails, then you should remove it and run the build manually (see below)
+      # Autobuild attempts to build any compiled languages (C/C++, C#, or Java).
+      # If this step fails, then you should remove it and run the build manually (see below).
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
@@ -48,11 +44,11 @@ jobs:
 
       # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
       #    and modify them (or add more) to build your code if your project
-      #    uses a compiled language
+      #    uses a compiled language.
 
-      #- run: |
-      #   make bootstrap
-      #   make release
+      # - run: |
+      #    make bootstrap
+      #    make release
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
