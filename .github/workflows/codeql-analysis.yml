@@ -1,6 +1,6 @@
 name: 'Code scanning - action'
 
-on: 
+on:
   push:
     branches: [main, develop]  # Trigger the workflow on pushes to 'main' and 'develop'
   pull_request:
@@ -8,35 +8,30 @@ on:
 
 jobs:
   CodeQL-Build:
-    # CodeQL runs on ubuntu-latest and windows-latest
+    # CodeQL runs on ubuntu-latest
     runs-on: ubuntu-latest
 
-    permissions: 
+    permissions:
       contents: read
-      security-events: write
+      security-events: write  # This enables Code Scanning to upload results
+      actions: read  # Ensures workflows can run correctly
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetch immediate parents for pull request workflows
           fetch-depth: 2
 
-      # Step 2: Checkout the head of the pull request
       - run: git checkout HEAD^2
         if: ${{ github.event_name == 'pull_request' }}
 
-      # Step 3: Initialize CodeQL tools
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript  # Override to scan JavaScript code
+          languages: javascript
 
-      # Step 4: Automatically build the project
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
-      # Step 5: Run CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
