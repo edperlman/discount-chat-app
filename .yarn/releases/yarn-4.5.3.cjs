@@ -828,7 +828,7 @@ Please report this issue at https://github.com/yarnpkg/berry/issues.`)}process.o
   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
   USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-/*! Bundled license information:
+/*! Bundled license information: */
 
 is-number/index.js:
   (*!
@@ -888,11 +888,11 @@ git-url-parse/lib/index.js:
    *)
 
 object-assign/index.js:
-  (*
-  object-assign
-  (c) Sindre Sorhus
-  @license MIT
-  *)
+  (*!
+   * object-assign
+   * (c) Sindre Sorhus
+   * @license MIT
+   *)
 
 react/cjs/react.production.min.js:
   (** @license React v17.0.2
@@ -931,4 +931,3 @@ is-windows/index.js:
    * Copyright © 2015-2018, Jon Schlinkert.
    * Released under the MIT License.
    *)
-*/

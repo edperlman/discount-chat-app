@@ -71,4 +71,7 @@
 		"@types/stream-buffers": "^3.0.7",
 		"node-gyp": "^10.2.0"
 	}
+=======
+  "name": "discount-chat-app",
+  "packageManager": "yarn@4.5.3"
 }
