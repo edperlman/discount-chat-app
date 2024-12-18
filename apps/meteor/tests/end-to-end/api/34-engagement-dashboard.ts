@@ -2,7 +2,7 @@ import type { IRoom } from '@rocket.chat/core-typings';
 import { expect } from 'chai';
 import { after, before, describe, it } from 'mocha';
 import type { Response } from 'supertest';
-
+import { randomBytes } from 'crypto';
 import { getCredentials, api, request, credentials } from '../../data/api-data';
 import { sendSimpleMessage } from '../../data/chat.helper';
 import { updatePermission } from '../../data/permissions.helper';
@@ -23,7 +23,8 @@ describe('[Engagement Dashboard]', function () {
 		let testRoom: IRoom;
 
 		before(async () => {
-			testRoom = (await createRoom({ type: 'c', name: `channel.test.engagement.${Date.now()}-${Math.random()}` })).body.channel;
+			const randomSuffix = randomBytes(4).toString('hex');
+			testRoom = (await createRoom({ type: 'c', name: `channel.test.engagement.${Date.now()}-${randomSuffix}` })).body.channel;
 		});
 
 		after(async () => {
