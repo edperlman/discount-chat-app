@@ -50,12 +50,30 @@ const proxy = async function (
 	processResponse = _processResponse,
 ): Promise<void> {
 	req.pause();
-	const options: RequestOptions = url.parse(req.originalUrl || '');
-	options.headers = req.headers;
-	options.method = req.method;
-	options.agent = false;
-	options.hostname = proxyHostname;
-	options.port = proxyPort;
+	const parsedUrl = url.parse(req.originalUrl || '', true);
+	const allowedPaths = ['/allowedPath1', '/allowedPath2']; // Define allowed paths
+	const allowedQueryParams = ['param1', 'param2']; // Define allowed query parameters
+
+	if (!allowedPaths.includes(parsedUrl.pathname || '')) {
+		res.status(400).send('Invalid path');
+		return;
+	}
+
+	const sanitizedQuery: { [key: string]: string | string[] | undefined } = {};
+	for (const key of Object.keys(parsedUrl.query)) {
+		if (allowedQueryParams.includes(key)) {
+			sanitizedQuery[key] = parsedUrl.query[key];
+		}
+	}
+
+	const options: RequestOptions = {
+		hostname: proxyHostname,
+		port: proxyPort,
+		path: url.format({ pathname: parsedUrl.pathname, query: sanitizedQuery }),
+		headers: req.headers,
+		method: req.method,
+		agent: false,
+	};
 	if (session) {
 		// Required to not receive gzipped data
 		delete options.headers['accept-encoding'];
