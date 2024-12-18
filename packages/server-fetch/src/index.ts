@@ -31,8 +31,9 @@ function getFetchAgent<U extends string>(
 	}
 
 	if (isHttps) {
+		const rejectUnauthorized = process.env.NODE_ENV !== 'production' && allowSelfSignedCerts ? false : true;
 		return new https.Agent({
-			rejectUnauthorized: false,
+			rejectUnauthorized,
 		});
 	}
 	return null;
