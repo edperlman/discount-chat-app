@@ -24,7 +24,7 @@ jobs:
       matrix:
         include:
           - language: javascript-typescript
-            build-mode: autobuild # Allow CodeQL to auto-build JS/TS projects
+            build-mode: none # Set build mode to 'none' for JS/TS
 
     steps:
       # Step 1: Checkout repository
