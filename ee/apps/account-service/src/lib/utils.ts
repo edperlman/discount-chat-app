@@ -23,7 +23,8 @@ type Password =
 
 export const getPassword = (password: Password): string => {
 	if (typeof password === 'string') {
-		return crypto.createHash('sha256').update(password).digest('hex'); // lgtm [js/insufficient-password-hash]
+		const saltRounds = 10;
+		return bcrypt.hashSync(password, saltRounds);
 	}
 	if (typeof password.digest === 'undefined') {
 		throw new Error('invalid password');
