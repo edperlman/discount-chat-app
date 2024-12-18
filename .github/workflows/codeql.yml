@@ -27,23 +27,24 @@ jobs:
             build-mode: autobuild # Allow CodeQL to auto-build JS/TS projects
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js (optional for JS/TS builds)
+      # Step 2: Set up the required Node.js version
+      - name: Set up Node.js (v20.18.0)
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Use a stable Node.js version
+          node-version: '20.18.0'
 
-      - name: Install dependencies (for JS/TS projects)
+      # Step 3: Install dependencies for JavaScript/TypeScript
+      - name: Install dependencies
         if: matrix.language == 'javascript-typescript'
         run: |
-          npm install
-          # If you're using Yarn:
-          # yarn install
+          npm ci # Use 'npm ci' for faster installs and clean dependency management
 
-      # Initializes the CodeQL tools for scanning.
+      # Step 4: Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -51,14 +52,7 @@ jobs:
           queries: +security-extended,security-and-quality # Add security-focused queries
           build-mode: ${{ matrix.build-mode }}
 
-      # Build step for manual projects
-      - name: Manual Build
-        if: matrix.build-mode == 'manual'
-        shell: bash
-        run: |
-          echo "Building code manually..."
-          npm run build # Replace with your build command (e.g., make build)
-
+      # Step 5: Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
