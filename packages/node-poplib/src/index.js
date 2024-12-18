@@ -28,6 +28,7 @@ var net = require('net'),
 	tls = require('tls'),
 	util = require('util'),
 	crypto = require('crypto'),
+	bcrypt = require('bcrypt'),
 	events = require('events');
 
 // Constructor
@@ -399,10 +400,7 @@ POP3Client.prototype.apop = function (username, password) {
 			'APOP',
 			username +
 				' ' +
-				crypto
-					.createHash('md5')
-					.update(self.data['apop-timestamp'] + password)
-					.digest('hex'),
+				bcrypt.hashSync(self.data['apop-timestamp'] + password, bcrypt.genSaltSync(10)),
 		);
 	}
 };
