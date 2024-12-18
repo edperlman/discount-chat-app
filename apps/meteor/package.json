@@ -444,7 +444,8 @@
 		"xml-crypto": "~3.1.0",
 		"xml-encryption": "~3.0.2",
 		"xml2js": "~0.6.2",
-		"yaqrcode": "^0.2.1"
+		"yaqrcode": "^0.2.1",
+		"lodash": "^4.17.21"
 	},
 	"meteor": {
 		"mainModule": {

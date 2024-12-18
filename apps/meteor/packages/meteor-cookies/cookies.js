@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import _ from 'lodash';
 
 let fetch;
 let WebApp;
@@ -12,11 +13,11 @@ if (Meteor.isServer) {
 const NoOp = () => {};
 const urlRE = /\/___cookie___\/set/;
 const rootUrl = Meteor.isServer
-	? process.env.ROOT_URL
-	: window.__meteor_runtime_config__.ROOT_URL || window.__meteor_runtime_config__.meteorEnv.ROOT_URL || false;
+	? _.escapeRegExp(process.env.ROOT_URL)
+	: _.escapeRegExp(window.__meteor_runtime_config__.ROOT_URL || window.__meteor_runtime_config__.meteorEnv.ROOT_URL || false);
 const mobileRootUrl = Meteor.isServer
-	? process.env.MOBILE_ROOT_URL
-	: window.__meteor_runtime_config__.MOBILE_ROOT_URL || window.__meteor_runtime_config__.meteorEnv.MOBILE_ROOT_URL || false;
+	? _.escapeRegExp(process.env.MOBILE_ROOT_URL)
+	: _.escapeRegExp(window.__meteor_runtime_config__.MOBILE_ROOT_URL || window.__meteor_runtime_config__.meteorEnv.MOBILE_ROOT_URL || false);
 
 const helpers = {
 	isUndefined(obj) {
