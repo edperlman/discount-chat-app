@@ -1,8 +1,8 @@
 {
-	"name": "rocket.chat",
+	"name": "discount-chat-app",
 	"version": "7.2.0-develop",
 	"description": "Rocket.Chat Monorepo",
-	"main": "index.js",
+	"main": "app.js",
 	"private": true,
 	"scripts": {
 		"build": "turbo run build",
@@ -55,23 +55,17 @@
 	},
 	"volta": {
 		"node": "20.18.0",
-		"yarn": "1.22.18"
+		"yarn": "4.5.3"
 	},
 	"resolutions": {
 		"minimist": "1.2.6",
 		"adm-zip": "0.5.9",
 		"underscore": "1.13.7",
-		"lodash": "4.17.21",
-		"mongodb@^4.17.1": "patch:mongodb@npm:4.17.1#.yarn/patches/mongodb-npm-4.17.1-a2fe811ff1.patch",
-		"typia@~6.9.0": "patch:typia@npm%3A6.9.0#./.yarn/patches/typia-npm-6.9.0-2fd4d85f25.patch",
-		"moleculer@^0.14.34": "patch:moleculer@npm%3A0.14.34#./.yarn/patches/moleculer-npm-0.14.34-440e26767d.patch",
-		"mongodb@npm:^4.3.1": "patch:mongodb@npm%3A4.17.2#~/.yarn/patches/mongodb-npm-4.17.2-40d1286d70.patch"
+		"lodash": "4.17.21"
 	},
 	"dependencies": {
 		"@types/stream-buffers": "^3.0.7",
+		"mongodb": "^4.17.2",
 		"node-gyp": "^10.2.0"
 	}
-=======
-  "name": "discount-chat-app",
-  "packageManager": "yarn@4.5.3"
 }
