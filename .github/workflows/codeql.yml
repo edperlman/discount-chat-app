@@ -11,13 +11,13 @@ on:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ matrix.language == 'swift' && 'macos-latest' || 'ubuntu-22.04' }}
+    runs-on: ubuntu-22.04
 
     permissions:
       security-events: write # Required for CodeQL to upload results
-      packages: read         # Fetch CodeQL packs
       actions: read
       contents: read
+      packages: read
 
     strategy:
       fail-fast: false
@@ -31,29 +31,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up the required Node.js version
+      # Step 2: Set up Node.js (v20.18.0)
       - name: Set up Node.js (v20.18.0)
-        if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v3
         with:
           node-version: '20.18.0'
 
-      # Step 3: Install dependencies for JavaScript/TypeScript
+      # Step 3: Install dependencies
       - name: Install dependencies
-        if: matrix.language == 'javascript-typescript'
         run: |
-          npm ci # Use 'npm ci' for faster installs and clean dependency management
+          npm ci
 
-      # Step 4: Initialize CodeQL
+      # Step 4: Initialize CodeQL with advanced configuration
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          queries: +security-extended,security-and-quality # Add security-focused queries
           build-mode: ${{ matrix.build-mode }}
+          config-file: .github/codeql/config.yml # Add custom configuration file
+          queries: +security-extended,security-and-quality
 
       # Step 5: Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
+
+      # Step 6: Upload SARIF Results
+      - name: Upload SARIF Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: codeql_databases/javascript.zip
+
+      # Step 7: Clear Cache to Avoid Conflicts
+      - name: Clear Old Cache
+        run: |
+          echo "Clearing old caches to avoid key conflicts..."
+          rm -rf ~/.npm
