@@ -9,11 +9,13 @@ import type { Request, Response } from 'express';
 import express from 'express';
 import mem from 'mem';
 import WebSocket from 'ws';
+import lusca from 'lusca';
 
 import { ServerSession } from '../../../../app/ecdh/server/ServerSession';
 
 const app = express();
 app.use(cookieParser());
+app.use(lusca.csrf());
 
 const port = process.env.PORT || 4000;
 
