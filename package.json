@@ -4,43 +4,45 @@
 	"description": "Rocket.Chat Monorepo",
 	"main": "app.js",
 	"private": true,
+	"packageManager": "npm@8.0.0",
 	"scripts": {
-		"build": "turbo run build",
-		"build:services": "turbo run build --filter=rocketchat-services...",
-		"build:ci": "turbo run build:ci",
-		"test": "echo \"No tests specified\" && exit 0",
-		"testunit": "turbo run testunit",
-		"dev": "turbo run dev --env-mode=loose --parallel",
-		"dsv": "turbo run dsv --env-mode=loose",
-		"lint": "turbo run lint",
-		"storybook": "npm run storybook",
-		"fuselage": "./fuselage.sh",
-		"fossify": "TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' ts-node scripts/fossify.ts"
+	  "build": "turbo run build",
+	  "build:services": "turbo run build --filter=rocketchat-services...",
+	  "build:ci": "turbo run build:ci",
+	  "test": "echo \"No tests specified\" && exit 0",
+	  "testunit": "turbo run testunit",
+	  "dev": "turbo run dev --env-mode=loose --parallel",
+	  "dsv": "turbo run dsv --env-mode=loose",
+	  "lint": "turbo run lint",
+	  "storybook": "npm run storybook",
+	  "fuselage": "./fuselage.sh",
+	  "fossify": "TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' ts-node scripts/fossify.ts"
 	},
 	"devDependencies": {
-		"@changesets/cli": "^2.27.9",
-		"@types/chart.js": "^2.9.41",
-		"@types/js-yaml": "^4.0.9",
-		"ts-node": "^10.9.2",
-		"turbo": "^2.2.3"
+	  "@changesets/cli": "^2.27.9",
+	  "@types/chart.js": "^2.9.41",
+	  "@types/js-yaml": "^4.0.9",
+	  "ts-node": "^10.9.2",
+	  "turbo": "^2.2.3"
 	},
 	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/RocketChat/Rocket.Chat.git"
+	  "type": "git",
+	  "url": "git+https://github.com/RocketChat/Rocket.Chat.git"
 	},
 	"author": "",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/RocketChat/Rocket.Chat/issues"
+	  "url": "https://github.com/RocketChat/Rocket.Chat/issues"
 	},
 	"homepage": "https://github.com/RocketChat/Rocket.Chat#readme",
 	"engines": {
-		"node": "20.18.0",
-		"npm": ">=8.0.0"
+	  "node": "20.18.0",
+	  "npm": ">=8.0.0"
 	},
 	"dependencies": {
-		"@types/stream-buffers": "^3.0.7",
-		"mongodb": "^6.12.0",
-		"node-gyp": "^11.0.0"
+	  "@types/stream-buffers": "^3.0.7",
+	  "mongodb": "^6.12.0",
+	  "node-gyp": "^11.0.0"
 	}
-}
+  }
+  
