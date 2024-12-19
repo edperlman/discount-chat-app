@@ -2858,7 +2858,7 @@ describe('[Users]', () => {
 				.post(api('users.deleteOwnAccount'))
 				.set(userCredentials)
 				.send({
-					password: crypto.createHash('sha256').update(password, 'utf8').digest('hex'),
+					password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
 				})
 				.expect('Content-Type', 'application/json')
 				.expect(200)
