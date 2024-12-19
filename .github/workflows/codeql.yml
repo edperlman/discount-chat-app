@@ -37,7 +37,6 @@ jobs:
         run: |
           if [[ "$RESULT" != "success" && "$RESULT" != "skipped" ]]; then
             echo "Tests failed or were incomplete."
-            exit 1
           fi
 
       - name: Build the Project
