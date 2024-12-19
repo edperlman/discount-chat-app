@@ -1,13 +1,5 @@
 version: 2
-updates:
-  # Main repo NPM package
-  - package-ecosystem: npm
-    directory: '/'
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 10
-    labels:
-      - 'automerge'
+updates:[]
 
   ## EE dependencies
   - package-ecosystem: npm
