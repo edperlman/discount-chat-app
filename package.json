@@ -4,45 +4,50 @@
 	"description": "Rocket.Chat Monorepo",
 	"main": "app.js",
 	"private": true,
-	"packageManager": "npm@8.0.0",
+	"packageManager": "npm@10.8.2", // Updated to reflect your current npm version
+	"workspaces": [
+	  "apps/*", // Defines the workspace structure (applications)
+	  "packages/*", // Defines the workspace structure (shared packages)
+	  "services/*" // Defines the workspace structure (services)
+	],
 	"scripts": {
-	  "build": "turbo run build",
-	  "build:services": "turbo run build --filter=rocketchat-services...",
-	  "build:ci": "turbo run build:ci",
-	  "test": "echo \"No tests specified\" && exit 0",
-	  "testunit": "turbo run testunit",
-	  "dev": "turbo run dev --env-mode=loose --parallel",
-	  "dsv": "turbo run dsv --env-mode=loose",
-	  "lint": "turbo run lint",
-	  "storybook": "npm run storybook",
-	  "fuselage": "./fuselage.sh",
-	  "fossify": "TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' ts-node scripts/fossify.ts"
+	  "build": "turbo run build", // Executes the 'build' task across workspaces
+	  "build:services": "turbo run build --filter=rocketchat-services...", // Builds only services
+	  "build:ci": "turbo run build:ci", // Special build task for CI pipelines
+	  "test": "echo \"No tests specified\" && exit 0", // Placeholder for tests to avoid npm test errors
+	  "testunit": "turbo run testunit", // Runs unit tests across workspaces
+	  "dev": "turbo run dev --env-mode=loose --parallel", // Runs dev environments in parallel
+	  "dsv": "turbo run dsv --env-mode=loose", // Runs dev environments loosely
+	  "lint": "turbo run lint", // Runs linting tasks
+	  "storybook": "npm run storybook", // Executes Storybook for UI components
+	  "fuselage": "./fuselage.sh", // Custom shell script for fuselage tasks
+	  "fossify": "TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' ts-node scripts/fossify.ts" // Runs a script for generating FOSS licensing
 	},
 	"devDependencies": {
-	  "@changesets/cli": "^2.27.9",
-	  "@types/chart.js": "^2.9.41",
-	  "@types/js-yaml": "^4.0.9",
-	  "ts-node": "^10.9.2",
-	  "turbo": "^2.2.3"
+	  "@changesets/cli": "^2.27.9", // Dependency for managing changesets in a monorepo
+	  "@types/chart.js": "^2.9.41", // Type definitions for Chart.js
+	  "@types/js-yaml": "^4.0.9", // Type definitions for js-yaml
+	  "ts-node": "^10.9.2", // Allows TypeScript execution in Node.js
+	  "turbo": "^2.2.3" // Turborepo CLI for monorepo management
 	},
 	"repository": {
 	  "type": "git",
-	  "url": "git+https://github.com/RocketChat/Rocket.Chat.git"
+	  "url": "git+https://github.com/RocketChat/Rocket.Chat.git" // Rocket.Chat's GitHub repository URL
 	},
 	"author": "",
 	"license": "MIT",
 	"bugs": {
-	  "url": "https://github.com/RocketChat/Rocket.Chat/issues"
+	  "url": "https://github.com/RocketChat/Rocket.Chat/issues" // Issues tracker URL
 	},
-	"homepage": "https://github.com/RocketChat/Rocket.Chat#readme",
+	"homepage": "https://github.com/RocketChat/Rocket.Chat#readme", // Homepage URL
 	"engines": {
-	  "node": "20.18.0",
-	  "npm": ">=8.0.0"
+	  "node": "20.18.0", // Specifies the required Node.js version
+	  "npm": ">=10.0.0" // Updated to reflect compatibility with npm v10+
 	},
 	"dependencies": {
-	  "@types/stream-buffers": "^3.0.7",
-	  "mongodb": "^6.12.0",
-	  "node-gyp": "^11.0.0"
+	  "@types/stream-buffers": "^3.0.7", // Type definitions for stream-buffers
+	  "mongodb": "^6.12.0", // MongoDB driver for Node.js
+	  "node-gyp": "^11.0.0" // Native addon build tool for Node.js
 	}
   }
   
