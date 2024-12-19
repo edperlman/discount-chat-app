@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Ensure npm is used
+        run: npm --version
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
