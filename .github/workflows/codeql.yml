@@ -1,12 +1,10 @@
-name: "CodeQL Advanced"
+name: CodeQL Analysis
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  schedule:
-    - cron: '33 13 * * 1' # Runs every Monday at 1:33 PM UTC
 
 jobs:
   analyze:
@@ -14,26 +12,21 @@ jobs:
     runs-on: ubuntu-22.04
 
     permissions:
-      security-events: write # Required for CodeQL to upload results
-      actions: read
-      contents: read
-      packages: read
+      security-events: write
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - language: javascript-typescript
-            build-mode: none # Set build mode to 'none' for JS/TS
+        language: [ "javascript-typescript" ]
 
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js (v20.18.0)
-      - name: Set up Node.js (v20.18.0)
-        uses: actions/setup-node@v3
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20.18.0'
 
@@ -41,29 +34,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Step 4: Initialize CodeQL with advanced configuration
+      # Step 4: Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
-          build-mode: none
-          config-file: .github/codeql/config.yml # Add custom configuration file
-          queries: +security-extended,security-and-quality
+          languages: javascript-typescript
+          build-mode: none # Ensure 'none' for JavaScript/TypeScript
+          config-file: .github/codeql/config.yml
 
       # Step 5: Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
 
-      # Step 6: Upload SARIF Results
-      - name: Upload SARIF Results
+      # Step 6: Upload SARIF results
+      - name: Upload CodeQL SARIF Results
         uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: codeql_databases/javascript.zip
-
-      # Step 7: Clear Cache to Avoid Conflicts
-      - name: Clear Old Cache
-        run: |
-          echo "Clearing old caches to avoid key conflicts..."
-          rm -rf ~/.npm
