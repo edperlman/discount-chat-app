@@ -8,6 +8,7 @@
 		"build": "turbo run build",
 		"build:services": "turbo run build --filter=rocketchat-services...",
 		"build:ci": "turbo run build:ci",
+		"test": "echo \"No tests specified\" && exit 0",
 		"testunit": "turbo run testunit",
 		"dev": "turbo run dev --env-mode=loose --parallel",
 		"dsv": "turbo run dsv --env-mode=loose",
