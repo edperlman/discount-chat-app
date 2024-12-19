@@ -2,50 +2,46 @@ name: CodeQL Analysis
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-22.04
-
-    permissions:
-      security-events: write
-
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        language: [ "javascript-typescript" ]
+        language: [javascript-typescript]
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js (v20.18.0)
-      - name: Set up Node.js (v20.18.0)
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.18.0'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      # Step 4: Initialize CodeQL
+      - name: Build the Project
+        run: npm run build
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript-typescript
-          build-mode: none # Ensure 'none' for JavaScript/TypeScript
-          config-file: .github/codeql/config.yml
+          languages: ${{ matrix.language }}
 
-      # Step 5: Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          output: codeql_databases/javascript.zip
 
-      # Step 6: Upload SARIF results
-      - name: Upload CodeQL SARIF Results
+      - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: codeql_databases/javascript.zip
