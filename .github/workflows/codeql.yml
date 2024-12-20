@@ -30,6 +30,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run tests
+        run: npm test
+
+      - name: Aggregate test results
+        run: |
+          if [[ "$RESULT" != "success" && "$RESULT" != "skipped" ]]; then
+            echo "Tests failed or were incomplete."
+            exit 1
+          fi
+
       - name: Build the Project
         run: npm run build
 

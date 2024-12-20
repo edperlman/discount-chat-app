@@ -1,4 +1,5 @@
 import type { Credentials } from '@rocket.chat/api-client';
+import * as crypto from 'crypto';
 import type { IIntegration, IMessage, IRoom, ITeam, IUser } from '@rocket.chat/core-typings';
 import { expect, assert } from 'chai';
 import { after, before, describe, it } from 'mocha';
@@ -683,7 +684,7 @@ describe('[Channels]', () => {
 				promises.push(
 					createRoom({
 						type: 'c',
-						name: `channel.test.${Date.now()}-${Math.random()}`,
+						name: `channel.test.${Date.now()}-${crypto.randomBytes(4).toString('hex')}`,
 						members: [guestUser.username],
 					}),
 				);
@@ -694,7 +695,7 @@ describe('[Channels]', () => {
 				.post(api('channels.create'))
 				.set(credentials)
 				.send({
-					name: `channel.test.${Date.now()}-${Math.random()}`,
+					name: `channel.test.${Date.now()}-${crypto.randomBytes(4).toString('hex')}`,
 					members: [guestUser.username],
 				})
 				.expect('Content-Type', 'application/json')
