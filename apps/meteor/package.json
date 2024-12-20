@@ -368,7 +368,7 @@
 		"katex": "~0.16.11",
 		"ldap-escape": "^2.0.6",
 		"ldapjs": "^2.3.3",
-		"limax": "^3.0.0",
+		"limax": "^4.1.0",
 		"localforage": "^1.10.0",
 		"lodash.clonedeep": "^4.5.0",
 		"lodash.debounce": "^4.0.8",
