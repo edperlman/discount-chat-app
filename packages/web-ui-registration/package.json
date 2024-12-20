@@ -41,7 +41,7 @@
 		"eslint": "~8.45.0",
 		"react": "~17.0.2",
 		"react-hook-form": "~7.45.4",
-		"react-i18next": "~13.2.2",
+		"react-i18next": "~15.2.0",
 		"storybook": "^8.4.4",
 		"storybook-dark-mode": "^4.0.2",
 		"typescript": "~5.7.2"
