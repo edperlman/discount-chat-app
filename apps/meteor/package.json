@@ -313,7 +313,7 @@
 		"busboy": "^1.6.0",
 		"bytebuffer": "5.0.1",
 		"chalk": "^4.1.2",
-		"change-case": "^4.1.2",
+		"change-case": "^5.4.4",
 		"chart.js": "^3.9.1",
 		"codemirror": "^5.65.18",
 		"colorette": "^2.0.20",
