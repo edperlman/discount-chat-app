@@ -123,7 +123,7 @@
 		"@types/lodash.escape": "^4.0.9",
 		"@types/lodash.get": "^4.4.9",
 		"@types/mailparser": "^3.4.5",
-		"@types/marked": "^4.3.2",
+		"@types/marked": "^6.0.0",
 		"@types/meteor": "^2.9.8",
 		"@types/meteor-collection-hooks": "^0.8.9",
 		"@types/mkdirp": "^1.0.2",
