@@ -19,27 +19,21 @@ jobs:
         language: [javascript-typescript]
 
     steps:
-      # Step 1: Check out the repository
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.18.0'
-          cache: pnpm
 
-      # Step 3: Install pnpm using the official script
-      - name: Install pnpm
-        run: |
-          curl -fsSL https://get.pnpm.io/install.sh | sh -
-          echo "::add-path::$HOME/.local/share/pnpm"
-          echo "::add-path::$HOME/.local/share/pnpm/bin"
-          pnpm env use --global 20.18.0
-        shell: bash
+      # Step 3: Install pnpm using pnpm's official GitHub Action
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 8.6.3 # You can set this to "latest" if you want the latest version
 
       # Step 4: Verify pnpm installation
       - name: Verify pnpm installation
