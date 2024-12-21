@@ -43,16 +43,19 @@ jobs:
           cache: pnpm
 
       - name: Install pnpm
-        run: npm install -g pnpm@9.15.1 # Installs pnpm globally
+        run: |
+          curl -fsSL https://get.pnpm.io/install.sh | sh -
+          export PATH=$HOME/.local/share/pnpm:$PATH
+        shell: bash
 
       - name: Verify pnpm installation
-        run: pnpm --version # Verifies pnpm is correctly installed and accessible
+        run: pnpm --version
 
       - name: Install dependencies
-        run: pnpm install # Installs all dependencies using pnpm
+        run: pnpm install
 
       - name: Build the Project
-        run: pnpm run build # Builds the project
+        run: pnpm run build
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
