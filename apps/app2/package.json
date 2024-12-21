@@ -1,0 +1,10 @@
+{
+    "name": "app2",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+      "build": "echo 'Building app2...'",
+      "test": "echo 'Testing app2...'"
+    }
+  }
+  
