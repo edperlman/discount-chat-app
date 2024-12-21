@@ -43,13 +43,16 @@ jobs:
           cache: pnpm
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install -g pnpm@9.15.1 # Installs pnpm globally
+
+      - name: Verify pnpm installation
+        run: pnpm --version # Verifies pnpm is correctly installed and accessible
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install # Installs all dependencies using pnpm
 
       - name: Build the Project
-        run: pnpm run build
+        run: pnpm run build # Builds the project
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
