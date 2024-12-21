@@ -19,7 +19,7 @@ jobs:
         language: [javascript-typescript]
 
     steps:
-      # Step 1: Checkout repository
+      # Step 1: Check out the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -29,38 +29,44 @@ jobs:
         with:
           node-version: '20.18.0'
 
-      # Step 3: Install pnpm using pnpm's official GitHub Action
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 8.6.3 # You can set this to "latest" if you want the latest version
+      # Step 3: Clear npm cache to ensure a clean environment
+      - name: Clear npm cache
+        run: npm cache clean --force
 
-      # Step 4: Verify pnpm installation
+      # Step 4: Configure npm registry (optional but useful for network issues)
+      - name: Configure npm registry
+        run: npm config set registry https://registry.npmjs.org/
+
+      # Step 5: Manually install pnpm using npm
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # Step 6: Verify pnpm installation
       - name: Verify pnpm installation
         run: pnpm --version
 
-      # Step 5: Install dependencies using pnpm
+      # Step 7: Install dependencies using pnpm
       - name: Install dependencies
         run: pnpm install
 
-      # Step 6: Build the project
+      # Step 8: Build the project
       - name: Build the Project
         run: pnpm run build
 
-      # Step 7: Initialize CodeQL
+      # Step 9: Initialize CodeQL
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
-      # Step 8: Perform CodeQL Analysis
+      # Step 10: Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
           output: codeql_databases/javascript.zip
 
-      # Step 9: Upload SARIF Results
+      # Step 11: Upload SARIF Results
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
         with:
