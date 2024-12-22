@@ -1,7 +1,0 @@
-{
-	"extends": "../../../tsconfig.base.server.json",
-	"compilerOptions": {
-		"jsx": "react-jsx"
-	},
-	"include": ["./src/**/*", "./jest.config.ts", "./.storybook/**/*"]
-}
