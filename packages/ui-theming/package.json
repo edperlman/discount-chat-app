@@ -1,7 +1,9 @@
-{
-  "name": "@rocket.chat/ui-theming",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Auto-generated package.json for @rocket.chat/ui-theming",
-  "dependencies": {}
+﻿{
+    "name":  "@rocket.chat/ui-theming",
+    "version":  "1.0.0",
+    "private":  true,
+    "description":  "Auto-generated package.json for @rocket.chat/ui-theming",
+    "dependencies":  {
+
+                     }
 }

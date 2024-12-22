@@ -1,7 +1,9 @@
-{
-  "name": "@rocket.chat/pdf-worker",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Auto-generated package.json for @rocket.chat/pdf-worker",
-  "dependencies": {}
+﻿{
+    "name":  "@rocket.chat/pdf-worker",
+    "version":  "1.0.0",
+    "private":  true,
+    "description":  "Auto-generated package.json for @rocket.chat/pdf-worker",
+    "dependencies":  {
+
+                     }
 }

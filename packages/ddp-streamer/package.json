@@ -1,10 +1,9 @@
-{
-    "name": "ddp-streamer",
-    "version": "1.0.0",
-    "private": true,
-    "main": "index.js",
-    "scripts": {
-      "build": "echo 'Building ddp-streamer...'"
-    }
-  }
-  
+﻿{
+    "name":  "ddp-streamer",
+    "version":  "1.0.0",
+    "private":  true,
+    "main":  "index.js",
+    "scripts":  {
+                    "build":  "echo \u0027Building ddp-streamer...\u0027"
+                }
+}

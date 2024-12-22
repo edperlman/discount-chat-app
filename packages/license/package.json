@@ -1,6 +1,5 @@
-{
-    "name": "@rocket.chat/license",
-    "version": "1.0.0",
-    "main": "index.js"
-  }
-  
+﻿{
+    "name":  "@rocket.chat/license",
+    "version":  "1.0.0",
+    "main":  "index.js"
+}

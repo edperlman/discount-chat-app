@@ -1,7 +1,9 @@
-{
-  "name": "@rocket.chat/css-in-js",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Auto-generated package.json for @rocket.chat/css-in-js",
-  "dependencies": {}
+﻿{
+    "name":  "@rocket.chat/css-in-js",
+    "version":  "1.0.0",
+    "private":  true,
+    "description":  "Auto-generated package.json for @rocket.chat/css-in-js",
+    "dependencies":  {
+
+                     }
 }

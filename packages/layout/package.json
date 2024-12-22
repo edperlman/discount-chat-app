@@ -1,7 +1,9 @@
-{
-  "name": "@rocket.chat/layout",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Auto-generated package.json for @rocket.chat/layout",
-  "dependencies": {}
+﻿{
+    "name":  "@rocket.chat/layout",
+    "version":  "1.0.0",
+    "private":  true,
+    "description":  "Auto-generated package.json for @rocket.chat/layout",
+    "dependencies":  {
+
+                     }
 }
