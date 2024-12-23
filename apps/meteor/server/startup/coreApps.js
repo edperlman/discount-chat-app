@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const banner_module_1 = require("../modules/core-apps/banner.module");
+const cloudAnnouncements_module_1 = require("../modules/core-apps/cloudAnnouncements.module");
+const mention_module_1 = require("../modules/core-apps/mention.module");
+const nps_module_1 = require("../modules/core-apps/nps.module");
+const videoconf_module_1 = require("../modules/core-apps/videoconf.module");
+const service_1 = require("../services/uikit-core-app/service");
+(0, service_1.registerCoreApp)(new cloudAnnouncements_module_1.CloudAnnouncementsModule());
+(0, service_1.registerCoreApp)(new nps_module_1.Nps());
+(0, service_1.registerCoreApp)(new banner_module_1.BannerModule());
+(0, service_1.registerCoreApp)(new videoconf_module_1.VideoConfModule());
+(0, service_1.registerCoreApp)(new mention_module_1.MentionModule());

@@ -1,0 +1,31 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const jsx_runtime_1 = require("react/jsx-runtime");
+const fuselage_1 = require("@rocket.chat/fuselage");
+const ui_contexts_1 = require("@rocket.chat/ui-contexts");
+const react_1 = __importDefault(require("react"));
+const HomePageHeader_1 = __importDefault(require("./HomePageHeader"));
+const AddUsersCard_1 = __importDefault(require("./cards/AddUsersCard"));
+const CreateChannelsCard_1 = __importDefault(require("./cards/CreateChannelsCard"));
+const CustomContentCard_1 = __importDefault(require("./cards/CustomContentCard"));
+const DesktopAppsCard_1 = __importDefault(require("./cards/DesktopAppsCard"));
+const DocumentationCard_1 = __importDefault(require("./cards/DocumentationCard"));
+const JoinRoomsCard_1 = __importDefault(require("./cards/JoinRoomsCard"));
+const MobileAppsCard_1 = __importDefault(require("./cards/MobileAppsCard"));
+const Page_1 = __importDefault(require("../../components/Page/Page"));
+const PageScrollableContent_1 = __importDefault(require("../../components/Page/PageScrollableContent"));
+const CREATE_CHANNEL_PERMISSIONS = ['create-c', 'create-p'];
+const DefaultHomePage = () => {
+    const t = (0, ui_contexts_1.useTranslation)();
+    const canAddUsers = (0, ui_contexts_1.usePermission)('view-user-administration');
+    const isAdmin = (0, ui_contexts_1.useRole)('admin');
+    const canCreateChannel = (0, ui_contexts_1.useAtLeastOnePermission)(CREATE_CHANNEL_PERMISSIONS);
+    const workspaceName = (0, ui_contexts_1.useSetting)('Site_Name');
+    const isCustomContentBodyEmpty = (0, ui_contexts_1.useSetting)('Layout_Home_Body', '') === '';
+    const isCustomContentVisible = (0, ui_contexts_1.useSetting)('Layout_Home_Custom_Block_Visible', false);
+    return ((0, jsx_runtime_1.jsxs)(Page_1.default, { color: 'default', "data-qa": 'page-home', "data-qa-type": 'default', background: 'tint', children: [(0, jsx_runtime_1.jsx)(HomePageHeader_1.default, {}), (0, jsx_runtime_1.jsxs)(PageScrollableContent_1.default, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Box, { is: 'h2', fontScale: 'h1', mb: 20, "data-qa-id": 'homepage-welcome-text', children: t('Welcome_to_workspace', { Site_Name: workspaceName || 'Rocket.Chat' }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Box, { is: 'h3', fontScale: 'h3', mb: 16, children: t('Some_ideas_to_get_you_started') }), (0, jsx_runtime_1.jsx)(fuselage_1.Box, { mi: 'neg-x8', children: (0, jsx_runtime_1.jsxs)(fuselage_1.CardGroup, { wrap: true, stretch: true, children: [canAddUsers && (0, jsx_runtime_1.jsx)(AddUsersCard_1.default, {}), canCreateChannel && (0, jsx_runtime_1.jsx)(CreateChannelsCard_1.default, {}), (0, jsx_runtime_1.jsx)(JoinRoomsCard_1.default, {}), (0, jsx_runtime_1.jsx)(MobileAppsCard_1.default, {}), (0, jsx_runtime_1.jsx)(DesktopAppsCard_1.default, {}), (0, jsx_runtime_1.jsx)(DocumentationCard_1.default, {}), (isAdmin || (isCustomContentVisible && !isCustomContentBodyEmpty)) && (0, jsx_runtime_1.jsx)(CustomContentCard_1.default, {})] }) })] })] }));
+};
+exports.default = DefaultHomePage;

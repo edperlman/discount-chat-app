@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppMetadataStorage = exports.AppBridges = exports.AppManager = exports.AppEvents = void 0;
+var metadata_1 = require("@rocket.chat/apps-engine/definition/metadata");
+Object.defineProperty(exports, "AppEvents", { enumerable: true, get: function () { return metadata_1.AppInterface; } });
+var AppManager_1 = require("@rocket.chat/apps-engine/server/AppManager");
+Object.defineProperty(exports, "AppManager", { enumerable: true, get: function () { return AppManager_1.AppManager; } });
+var bridges_1 = require("@rocket.chat/apps-engine/server/bridges");
+Object.defineProperty(exports, "AppBridges", { enumerable: true, get: function () { return bridges_1.AppBridges; } });
+var storage_1 = require("@rocket.chat/apps-engine/server/storage");
+Object.defineProperty(exports, "AppMetadataStorage", { enumerable: true, get: function () { return storage_1.AppMetadataStorage; } });

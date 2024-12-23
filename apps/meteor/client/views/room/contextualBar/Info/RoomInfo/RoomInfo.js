@@ -1,0 +1,30 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const jsx_runtime_1 = require("react/jsx-runtime");
+const fuselage_1 = require("@rocket.chat/fuselage");
+const ui_avatar_1 = require("@rocket.chat/ui-avatar");
+const ui_client_1 = require("@rocket.chat/ui-client");
+const react_1 = __importDefault(require("react"));
+const react_i18next_1 = require("react-i18next");
+const RoomInfoActions_1 = __importDefault(require("./RoomInfoActions"));
+const Contextualbar_1 = require("../../../../../components/Contextualbar");
+const InfoPanel_1 = require("../../../../../components/InfoPanel");
+const RetentionPolicyCallout_1 = __importDefault(require("../../../../../components/InfoPanel/RetentionPolicyCallout"));
+const MarkdownText_1 = __importDefault(require("../../../../../components/MarkdownText"));
+const useRetentionPolicy_1 = require("../../../hooks/useRetentionPolicy");
+const useRoomActions_1 = require("../hooks/useRoomActions");
+const useSplitRoomActions_1 = require("../hooks/useSplitRoomActions");
+const RoomInfo = ({ room, icon, onClickBack, onClickClose, onClickEnterRoom, onClickEdit, resetState }) => {
+    const { t } = (0, react_i18next_1.useTranslation)();
+    const { name, fname, description, topic, archived, broadcast, announcement } = room;
+    const roomTitle = fname || name;
+    const isDiscussion = 'prid' in room;
+    const retentionPolicy = (0, useRetentionPolicy_1.useRetentionPolicy)(room);
+    const actions = (0, useRoomActions_1.useRoomActions)(room, { onClickEnterRoom, onClickEdit, resetState });
+    const { buttons, menu } = (0, useSplitRoomActions_1.useSplitRoomActions)(actions);
+    return ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)(Contextualbar_1.ContextualbarHeader, { children: [onClickBack ? (0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarBack, { onClick: onClickBack }) : (0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarIcon, { name: 'info-circled' }), (0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarTitle, { children: isDiscussion ? t('Discussion_info') : t('Channel_info') }), onClickClose && (0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarClose, { onClick: onClickClose })] }), (0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarScrollableContent, { p: 24, children: (0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanel, { children: [(0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanelSection, { maxWidth: 'x332', mi: 'auto', children: [(0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelAvatar, { children: (0, jsx_runtime_1.jsx)(ui_avatar_1.RoomAvatar, { size: 'x332', room: room }) }), (0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanelActionGroup, { children: [(0, jsx_runtime_1.jsx)(RoomInfoActions_1.default, { actions: buttons }), menu && ((0, jsx_runtime_1.jsx)(ui_client_1.GenericMenu, { title: t('More'), placement: 'bottom-end', button: (0, jsx_runtime_1.jsx)(fuselage_1.IconButton, { icon: 'kebab', secondary: true, flexShrink: 0, flexGrow: 0, maxHeight: 'initial' }), sections: menu }))] })] }), archived && ((0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelSection, { children: (0, jsx_runtime_1.jsx)(fuselage_1.Box, { mb: 16, children: (0, jsx_runtime_1.jsx)(fuselage_1.Callout, { type: 'warning', children: t('Room_archived') }) }) })), roomTitle && ((0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelSection, { children: (0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelTitle, { title: roomTitle, icon: icon }) })), (0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanelSection, { children: [broadcast && ((0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelField, { children: (0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanelLabel, { children: [(0, jsx_runtime_1.jsx)("b", { children: t('Broadcast_channel') }), " ", t('Broadcast_channel_Description')] }) })), description && description !== '' && ((0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanelField, { children: [(0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelLabel, { children: t('Description') }), (0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelText, { withTruncatedText: false, children: (0, jsx_runtime_1.jsx)(MarkdownText_1.default, { variant: 'inline', content: description }) })] })), announcement && announcement !== '' && ((0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanelField, { children: [(0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelLabel, { children: t('Announcement') }), (0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelText, { withTruncatedText: false, children: (0, jsx_runtime_1.jsx)(MarkdownText_1.default, { variant: 'inline', content: announcement }) })] })), topic && topic !== '' && ((0, jsx_runtime_1.jsxs)(InfoPanel_1.InfoPanelField, { children: [(0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelLabel, { children: t('Topic') }), (0, jsx_runtime_1.jsx)(InfoPanel_1.InfoPanelText, { withTruncatedText: false, children: (0, jsx_runtime_1.jsx)(MarkdownText_1.default, { variant: 'inline', content: topic }) })] })), (retentionPolicy === null || retentionPolicy === void 0 ? void 0 : retentionPolicy.isActive) && (0, jsx_runtime_1.jsx)(RetentionPolicyCallout_1.default, { room: room })] })] }) })] }));
+};
+exports.default = RoomInfo;

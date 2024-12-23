@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.roomAccessAttributes = exports.canAccessRoomAsync = exports.subscriptionHasRole = exports.getUsersInRole = exports.getRoles = void 0;
+const canAccessRoom_1 = require("./functions/canAccessRoom");
+Object.defineProperty(exports, "roomAccessAttributes", { enumerable: true, get: function () { return canAccessRoom_1.roomAccessAttributes; } });
+Object.defineProperty(exports, "canAccessRoomAsync", { enumerable: true, get: function () { return canAccessRoom_1.canAccessRoomAsync; } });
+const getRoles_1 = require("./functions/getRoles");
+Object.defineProperty(exports, "getRoles", { enumerable: true, get: function () { return getRoles_1.getRoles; } });
+const getUsersInRole_1 = require("./functions/getUsersInRole");
+Object.defineProperty(exports, "getUsersInRole", { enumerable: true, get: function () { return getUsersInRole_1.getUsersInRole; } });
+const hasRole_1 = require("./functions/hasRole");
+Object.defineProperty(exports, "subscriptionHasRole", { enumerable: true, get: function () { return hasRole_1.subscriptionHasRole; } });
+require("./methods/addPermissionToRole");
+require("./methods/addUserToRole");
+require("./methods/deleteRole");
+require("./methods/removeRoleFromPermission");
+require("./methods/removeUserFromRole");
+require("./streamer/permissions");

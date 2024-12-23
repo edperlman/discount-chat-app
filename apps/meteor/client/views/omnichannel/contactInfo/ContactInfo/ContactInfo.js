@@ -1,0 +1,32 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const jsx_runtime_1 = require("react/jsx-runtime");
+const fuselage_1 = require("@rocket.chat/fuselage");
+const ui_avatar_1 = require("@rocket.chat/ui-avatar");
+const ui_contexts_1 = require("@rocket.chat/ui-contexts");
+const react_1 = __importDefault(require("react"));
+const react_i18next_1 = require("react-i18next");
+const ReviewContactModal_1 = __importDefault(require("./ReviewContactModal"));
+const Contextualbar_1 = require("../../../../components/Contextualbar");
+const useFormatDate_1 = require("../../../../hooks/useFormatDate");
+const useContactRoute_1 = require("../../hooks/useContactRoute");
+const useValidCustomFields_1 = require("../hooks/useValidCustomFields");
+const ContactInfoChannels_1 = __importDefault(require("../tabs/ContactInfoChannels/ContactInfoChannels"));
+const ContactInfoDetails_1 = __importDefault(require("../tabs/ContactInfoDetails"));
+const ContactInfoHistory_1 = __importDefault(require("../tabs/ContactInfoHistory"));
+const ContactInfo = ({ contact, onClose }) => {
+    const { t } = (0, react_i18next_1.useTranslation)();
+    const setModal = (0, ui_contexts_1.useSetModal)();
+    const handleNavigate = (0, useContactRoute_1.useContactRoute)();
+    const context = (0, ui_contexts_1.useRouteParameter)('context');
+    const formatDate = (0, useFormatDate_1.useFormatDate)();
+    const canEditContact = (0, ui_contexts_1.usePermission)('edit-omnichannel-contact');
+    const { name, emails, phones, conflictingFields, createdAt, lastChat, contactManager, customFields: userCustomFields } = contact;
+    const hasConflicts = conflictingFields && (conflictingFields === null || conflictingFields === void 0 ? void 0 : conflictingFields.length) > 0;
+    const customFieldEntries = (0, useValidCustomFields_1.useValidCustomFields)(userCustomFields);
+    return ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)(Contextualbar_1.ContextualbarHeader, { children: [(0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarIcon, { name: 'user' }), (0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarTitle, { children: t('Contact') }), (0, jsx_runtime_1.jsx)(Contextualbar_1.ContextualbarClose, { onClick: onClose })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Box, { display: 'flex', flexDirection: 'column', pi: 24, children: [name && ((0, jsx_runtime_1.jsxs)(fuselage_1.Box, { width: '100%', pb: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', children: [(0, jsx_runtime_1.jsxs)(fuselage_1.Box, { withTruncatedText: true, display: 'flex', children: [(0, jsx_runtime_1.jsx)(ui_avatar_1.UserAvatar, { size: 'x40', title: name, username: name }), (0, jsx_runtime_1.jsxs)(fuselage_1.Box, { withTruncatedText: true, mis: 16, display: 'flex', flexDirection: 'column', children: [(0, jsx_runtime_1.jsx)(fuselage_1.Box, { withTruncatedText: true, fontScale: 'h4', children: name }), lastChat && (0, jsx_runtime_1.jsx)(fuselage_1.Box, { fontScale: 'c1', children: `${t('Last_Chat')}: ${formatDate(lastChat.ts)}` })] })] }), (0, jsx_runtime_1.jsx)(fuselage_1.IconButton, { disabled: !canEditContact || hasConflicts, title: canEditContact ? t('Edit') : t('Not_authorized'), small: true, icon: 'pencil', onClick: () => handleNavigate({ context: 'edit' }) })] })), hasConflicts && ((0, jsx_runtime_1.jsx)(fuselage_1.Callout, { mbe: 8, alignItems: 'center', icon: 'members', actions: (0, jsx_runtime_1.jsx)(fuselage_1.ButtonGroup, { children: (0, jsx_runtime_1.jsx)(fuselage_1.Button, { onClick: () => setModal((0, jsx_runtime_1.jsx)(ReviewContactModal_1.default, { onCancel: () => setModal(null), contact: contact })), small: true, children: t('See_conflicts') }) }), title: t('Conflicts_found', { conflicts: conflictingFields === null || conflictingFields === void 0 ? void 0 : conflictingFields.length }) }))] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Tabs, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.TabsItem, { onClick: () => handleNavigate({ context: 'details' }), selected: context === 'details', children: t('Details') }), (0, jsx_runtime_1.jsx)(fuselage_1.TabsItem, { onClick: () => handleNavigate({ context: 'channels' }), selected: context === 'channels', children: t('Channels') }), (0, jsx_runtime_1.jsx)(fuselage_1.TabsItem, { onClick: () => handleNavigate({ context: 'history' }), selected: context === 'history', children: t('History') })] }), context === 'details' && ((0, jsx_runtime_1.jsx)(ContactInfoDetails_1.default, { createdAt: createdAt, contactManager: contactManager, phones: phones === null || phones === void 0 ? void 0 : phones.map(({ phoneNumber }) => phoneNumber), emails: emails === null || emails === void 0 ? void 0 : emails.map(({ address }) => address), customFieldEntries: customFieldEntries })), context === 'channels' && (0, jsx_runtime_1.jsx)(ContactInfoChannels_1.default, { contactId: contact === null || contact === void 0 ? void 0 : contact._id }), context === 'history' && (0, jsx_runtime_1.jsx)(ContactInfoHistory_1.default, { contact: contact })] }));
+};
+exports.default = ContactInfo;

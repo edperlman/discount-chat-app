@@ -1,0 +1,18 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const jsx_runtime_1 = require("react/jsx-runtime");
+const fuselage_1 = require("@rocket.chat/fuselage");
+const react_1 = __importDefault(require("react"));
+const react_i18next_1 = require("react-i18next");
+const VideoConfConfigModal = ({ onClose, onConfirm, isAdmin }) => {
+    const { t } = (0, react_i18next_1.useTranslation)();
+    return ((0, jsx_runtime_1.jsxs)(fuselage_1.Modal, { children: [(0, jsx_runtime_1.jsxs)(fuselage_1.Modal.Header, { children: [(0, jsx_runtime_1.jsxs)(fuselage_1.Modal.HeaderText, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Modal.Tagline, { children: isAdmin ? t('Missing_configuration') : t('App_not_enabled') }), (0, jsx_runtime_1.jsx)(fuselage_1.Modal.Title, { children: isAdmin ? t('Configure_video_conference') : t('Video_Conference') })] }), (0, jsx_runtime_1.jsx)(fuselage_1.Modal.Close, { title: t('Close'), onClick: onClose })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Modal.Content, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Modal.HeroImage, { maxHeight: 'initial', src: '/images/conf-call-config.svg' }), (0, jsx_runtime_1.jsx)(fuselage_1.Box, { fontScale: 'h3', children: t('Premium_capabilities') }), (0, jsx_runtime_1.jsx)(fuselage_1.Box, { withRichContent: true, children: (0, jsx_runtime_1.jsxs)(fuselage_1.Box, { is: 'ul', pis: 24, children: [(0, jsx_runtime_1.jsx)("li", { children: t('Ringtones_and_visual_indicators_notify_people_of_incoming_calls') }), (0, jsx_runtime_1.jsx)("li", { children: t('Call_history_provides_a_record_of_when_calls_took_place_and_who_joined') })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Box, { fontScale: 'h3', children: t('Conference_call_apps') }), (0, jsx_runtime_1.jsxs)(fuselage_1.Margins, { blockStart: 12, children: [(0, jsx_runtime_1.jsx)(fuselage_1.Callout, { icon: 'team', title: isAdmin ? t('Jitsi_included_with_Community') : 'Jitsi', children: t('Open-source_conference_call_solution') }), (0, jsx_runtime_1.jsx)(fuselage_1.Callout, { icon: 'lightning', title: t('Pexip_Premium_only'), children: t('A_secure_and_highly_private_self-managed_solution_for_conference_calls') }), (0, jsx_runtime_1.jsxs)(fuselage_1.Callout, { icon: 'lightning', title: t('Google_Meet_Premium_only'), children: [t('Secure_SaaS_solution'), " ", t('A_cloud-based_platform_for_those_needing_a_plug-and-play_app')] })] }), (0, jsx_runtime_1.jsx)(fuselage_1.Box, { fontScale: 'h3', mbs: 24, children: t('Required_action') }), (0, jsx_runtime_1.jsx)(fuselage_1.Callout, { mbs: 12, mbe: 24, title: t('Missing_configuration'), type: 'warning', children: isAdmin
+                            ? t('An_app_needs_to_be_installed_and_configured')
+                            : t('A_workspace_admin_needs_to_install_and_configure_a_conference_call_app') })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Modal.Footer, { justifyContent: 'space-between', children: [(0, jsx_runtime_1.jsx)(fuselage_1.Modal.FooterAnnotation, { children: isAdmin
+                            ? t('Configure_video_conference_to_make_it_available_on_this_workspace')
+                            : t('Talk_to_your_workspace_administrator_about_enabling_video_conferencing') }), (0, jsx_runtime_1.jsxs)(fuselage_1.Modal.FooterControllers, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Button, { onClick: onClose, children: t('Close') }), onConfirm && isAdmin && ((0, jsx_runtime_1.jsx)(fuselage_1.Button, { primary: true, onClick: onConfirm, children: t('Open_settings') }))] })] })] }));
+};
+exports.default = VideoConfConfigModal;

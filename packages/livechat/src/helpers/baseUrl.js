@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getAttachmentUrl = exports.getAvatarUrl = exports.getConnectionBaseUrl = void 0;
+const api_1 = require("../api");
+const getConnectionBaseUrl = () => `http${api_1.Livechat.connection.ssl ? 's' : ''}://${api_1.Livechat.connection.url}`;
+exports.getConnectionBaseUrl = getConnectionBaseUrl;
+const getAvatarUrl = (username) => (username ? `${(0, exports.getConnectionBaseUrl)()}/avatar/${username}` : null);
+exports.getAvatarUrl = getAvatarUrl;
+const getAttachmentUrl = (url) => new URL(url, (0, exports.getConnectionBaseUrl)()).toString();
+exports.getAttachmentUrl = getAttachmentUrl;

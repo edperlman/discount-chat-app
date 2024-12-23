@@ -1,0 +1,105 @@
+"use strict";
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const jsx_runtime_1 = require("react/jsx-runtime");
+const fuselage_1 = require("@rocket.chat/fuselage");
+const fuselage_hooks_1 = require("@rocket.chat/fuselage-hooks");
+const react_1 = __importDefault(require("react"));
+const react_hook_form_1 = require("react-hook-form");
+const react_i18next_1 = require("react-i18next");
+const AppearanceFieldLabel_1 = __importDefault(require("./AppearanceFieldLabel"));
+const MarkdownText_1 = __importDefault(require("../../../components/MarkdownText"));
+const useHasLicenseModule_1 = require("../../../hooks/useHasLicenseModule");
+const AppearanceForm = () => {
+    const { t } = (0, react_i18next_1.useTranslation)();
+    const isEnterprise = (0, useHasLicenseModule_1.useHasLicenseModule)('livechat-enterprise');
+    const { control, watch } = (0, react_hook_form_1.useFormContext)();
+    const { Livechat_enable_message_character_limit } = watch();
+    const livechatTitleField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatTitleColorField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatEnableMessageCharacterLimit = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatMessageCharacterLimit = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatShowAgentInfo = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatShowAgentEmail = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatDisplayOfflineForm = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatOfflineFormUnavailableField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatOfflineMessageField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatOfflineTitleField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatOfflineTitleColorField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatOfflineEmailField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatOfflineSuccessMessageField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatRegistrationForm = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatNameFieldRegistrationForm = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatEmailFieldRegistrationForm = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatRegistrationFormMessageField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatConversationFinishedMessageField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatConversationFinishedTextField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatHideWatermarkField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatWidgetPositionField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatBackgroundField = (0, fuselage_hooks_1.useUniqueId)();
+    const livechatHideSystemMessagesField = (0, fuselage_hooks_1.useUniqueId)();
+    const omnichannelVisitorsCanCloseConversationField = (0, fuselage_hooks_1.useUniqueId)();
+    return ((0, jsx_runtime_1.jsxs)(fuselage_1.Accordion, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Accordion.Item, { defaultExpanded: true, title: t('General'), children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldGroup, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { premium: true, htmlFor: livechatHideWatermarkField, children: t('Livechat_hide_watermark') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_hide_watermark', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatHideWatermarkField }, field, { checked: value, disabled: !isEnterprise })));
+                                        } })] }) }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { premium: true, htmlFor: livechatBackgroundField, children: t('Livechat_background') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_background', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.TextInput, Object.assign({}, field, { id: livechatBackgroundField, value: value, disabled: !isEnterprise })));
+                                        } }) }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldHint, { children: (0, jsx_runtime_1.jsx)(MarkdownText_1.default, { variant: 'inline', preserveHtml: true, content: t('Livechat_background_description') }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { premium: true, htmlFor: livechatWidgetPositionField, children: t('Livechat_widget_position_on_the_screen') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_widget_position', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.Select, Object.assign({}, field, { id: livechatWidgetPositionField, value: value, disabled: !isEnterprise, options: [
+                                                    ['left', t('Left')],
+                                                    ['right', t('Right')],
+                                                ] })));
+                                        } }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { premium: true, htmlFor: livechatHideSystemMessagesField, children: t('Livechat_hide_system_messages') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_hide_system_messages', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.MultiSelect, Object.assign({}, field, { id: livechatHideSystemMessagesField, value: value, disabled: !isEnterprise, options: [
+                                                    ['uj', t('Message_HideType_uj')],
+                                                    ['ul', t('Message_HideType_ul')],
+                                                    ['livechat-close', t('Message_HideType_livechat_closed')],
+                                                    ['livechat-started', t('Message_HideType_livechat_started')],
+                                                    ['livechat_transfer_history', t('Message_HideType_livechat_transfer_history')],
+                                                ] })));
+                                        } }) })] }), (0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: omnichannelVisitorsCanCloseConversationField, children: t('Omnichannel_allow_visitors_to_close_conversation') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Omnichannel_allow_visitors_to_close_conversation', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: omnichannelVisitorsCanCloseConversationField }, field, { checked: value })));
+                                        } })] }) })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Accordion.Item, { defaultExpanded: true, title: t('Livechat_online'), children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldGroup, { children: [(0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatTitleField, children: t('Title') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_title', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.TextInput, Object.assign({ id: livechatTitleField }, field)) }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatTitleColorField, children: t('Title_bar_color') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_title_color', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.InputBox, Object.assign({ id: livechatTitleColorField, type: 'color' }, field)) }) })] }), (0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatEnableMessageCharacterLimit, children: t('Livechat_enable_message_character_limit') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_enable_message_character_limit', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatEnableMessageCharacterLimit }, field, { checked: value })));
+                                        } })] }) }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatMessageCharacterLimit, children: t('Message_Characther_Limit') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_message_character_limit', control: control, render: (_a) => {
+                                            var _b = _a.field, { value, onChange } = _b, field = __rest(_b, ["value", "onChange"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.NumberInput, Object.assign({}, field, { id: livechatMessageCharacterLimit, disabled: !Livechat_enable_message_character_limit, value: value, onChange: (e) => onChange(Number(e.currentTarget.value) < 0 ? 0 : e.currentTarget.value) })));
+                                        } }) })] }), (0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatShowAgentInfo, children: t('Show_agent_info') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_show_agent_info', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return (0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatShowAgentInfo }, field, { checked: value }));
+                                        } })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatShowAgentEmail, children: t('Show_agent_email') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_show_agent_email', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return (0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatShowAgentEmail }, field, { checked: value }));
+                                        } })] }) })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Accordion.Item, { title: t('Livechat_offline'), children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldGroup, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatDisplayOfflineForm, children: t('Display_offline_form') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_display_offline_form', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return (0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatDisplayOfflineForm }, field, { checked: value }));
+                                        } })] }) }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatOfflineFormUnavailableField, children: t('Offline_form_unavailable_message') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_offline_form_unavailable', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.TextAreaInput, Object.assign({ id: livechatOfflineFormUnavailableField }, field, { rows: 3 })) }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatOfflineMessageField, children: t('Offline_message') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_offline_message', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.TextAreaInput, Object.assign({ id: livechatOfflineMessageField }, field, { rows: 3 })) }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatOfflineTitleField, children: t('Title_offline') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_offline_title', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.TextInput, Object.assign({ id: livechatOfflineTitleField }, field)) }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatOfflineTitleColorField, children: t('Title_bar_color_offline') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_offline_title_color', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.InputBox, Object.assign({ id: livechatOfflineTitleColorField }, field, { type: 'color' })) }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatOfflineEmailField, children: t('Email_address_to_send_offline_messages') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_offline_email', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.TextInput, Object.assign({ id: livechatOfflineEmailField }, field)) }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatOfflineSuccessMessageField, children: t('Offline_success_message') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_offline_success_message', control: control, render: ({ field }) => (0, jsx_runtime_1.jsx)(fuselage_1.TextAreaInput, Object.assign({ id: livechatOfflineSuccessMessageField }, field, { rows: 3 })) }) })] })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Accordion.Item, { title: t('Livechat_registration_form'), children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldGroup, { children: [(0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatRegistrationForm, children: t('Enabled') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_registration_form', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return (0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatRegistrationForm }, field, { checked: value }));
+                                        } })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatNameFieldRegistrationForm, children: t('Show_name_field') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_name_field_registration_form', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatNameFieldRegistrationForm }, field, { checked: value })));
+                                        } })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Field, { children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldRow, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatEmailFieldRegistrationForm, children: t('Show_email_field') }), (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_email_field_registration_form', control: control, render: (_a) => {
+                                            var _b = _a.field, { value } = _b, field = __rest(_b, ["value"]);
+                                            return ((0, jsx_runtime_1.jsx)(fuselage_1.ToggleSwitch, Object.assign({ id: livechatEmailFieldRegistrationForm }, field, { checked: value })));
+                                        } })] }) }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatRegistrationFormMessageField, children: t('Livechat_registration_form_message') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_registration_form_message', control: control, render: ({ field }) => ((0, jsx_runtime_1.jsx)(fuselage_1.TextAreaInput, Object.assign({ id: livechatRegistrationFormMessageField }, field, { rows: 3, placeholder: t('Offline_message') }))) }) })] })] }) }), (0, jsx_runtime_1.jsx)(fuselage_1.Accordion.Item, { title: t('Conversation_finished'), children: (0, jsx_runtime_1.jsxs)(fuselage_1.FieldGroup, { children: [(0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatConversationFinishedMessageField, children: t('Conversation_finished_message') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_conversation_finished_message', control: control, render: ({ field }) => ((0, jsx_runtime_1.jsx)(fuselage_1.TextAreaInput, Object.assign({ id: livechatConversationFinishedMessageField }, field, { rows: 3, placeholder: t('Offline_message') }))) }) })] }), (0, jsx_runtime_1.jsxs)(fuselage_1.Field, { children: [(0, jsx_runtime_1.jsx)(AppearanceFieldLabel_1.default, { htmlFor: livechatConversationFinishedTextField, children: t('Conversation_finished_text') }), (0, jsx_runtime_1.jsx)(fuselage_1.FieldRow, { children: (0, jsx_runtime_1.jsx)(react_hook_form_1.Controller, { name: 'Livechat_conversation_finished_text', control: control, render: ({ field }) => ((0, jsx_runtime_1.jsx)(fuselage_1.TextAreaInput, Object.assign({ id: livechatConversationFinishedTextField }, field, { rows: 3, placeholder: t('Offline_message') }))) }) })] })] }) })] }));
+};
+exports.default = AppearanceForm;

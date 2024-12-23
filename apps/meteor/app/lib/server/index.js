@@ -1,0 +1,67 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+require("../lib/MessageTypes");
+require("./lib/bugsnag");
+require("./lib/debug");
+require("./lib/loginErrorMessageOverride");
+require("./oauth/oauth");
+require("./oauth/facebook");
+require("./oauth/google");
+require("./oauth/proxy");
+require("./oauth/twitter");
+require("./methods/addOAuthService");
+require("./methods/addUsersToRoom");
+require("./methods/addUserToRoom");
+require("./methods/archiveRoom");
+require("./methods/blockUser");
+require("./methods/checkRegistrationSecretURL");
+require("./methods/cleanRoomHistory");
+require("./methods/createChannel");
+require("./methods/createPrivateGroup");
+require("./methods/createToken");
+require("./methods/deleteUserOwnAccount");
+require("./methods/executeSlashCommandPreview");
+require("./startup/mentionUserNotInChannel");
+require("./methods/getChannelHistory");
+require("./methods/getRoomJoinCode");
+require("./methods/getRoomRoles");
+require("./methods/getSingleMessage");
+require("./methods/getMessages");
+require("./methods/getSlashCommandPreviews");
+require("./methods/getUsernameSuggestion");
+require("./methods/getUserRoles");
+require("./methods/insertOrUpdateUser");
+require("./methods/joinDefaultChannels");
+require("./methods/joinRoom");
+require("./methods/leaveRoom");
+require("./methods/refreshOAuthService");
+require("./methods/removeOAuthService");
+require("./methods/restartServer");
+require("./methods/saveSetting");
+require("./methods/saveSettings");
+require("./methods/sendMessage");
+require("./methods/sendSMTPTestEmail");
+require("./methods/setAdminStatus");
+require("./methods/setEmail");
+require("./methods/setRealName");
+require("./methods/setUsername");
+require("./methods/unarchiveRoom");
+require("./methods/unblockUser");
+require("./methods/updateMessage");
+require("./methods/saveCustomFields");
+require("./methods/checkFederationConfiguration");
+__exportStar(require("./lib"), exports);

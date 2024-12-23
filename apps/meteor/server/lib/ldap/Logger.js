@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mapLogger = exports.authLogger = exports.searchLogger = exports.bindLogger = exports.connLogger = exports.logger = void 0;
+const logger_1 = require("@rocket.chat/logger");
+exports.logger = new logger_1.Logger('LDAP');
+exports.connLogger = exports.logger.section('Connection');
+exports.bindLogger = exports.logger.section('Bind');
+exports.searchLogger = exports.logger.section('Search');
+exports.authLogger = exports.logger.section('Auth');
+exports.mapLogger = exports.logger.section('Mapping');

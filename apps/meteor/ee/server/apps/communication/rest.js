@@ -1,0 +1,1052 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppsRestApi = void 0;
+const AppStatus_1 = require("@rocket.chat/apps-engine/definition/AppStatus");
+const license_1 = require("@rocket.chat/license");
+const models_1 = require("@rocket.chat/models");
+const server_fetch_1 = require("@rocket.chat/server-fetch");
+const meteor_1 = require("meteor/meteor");
+const server_1 = require("../../../../app/api/server");
+const getPaginationItems_1 = require("../../../../app/api/server/helpers/getPaginationItems");
+const getUploadFormData_1 = require("../../../../app/api/server/lib/getUploadFormData");
+const server_2 = require("../../../../app/cloud/server");
+const deprecationWarningLogger_1 = require("../../../../app/lib/server/lib/deprecationWarningLogger");
+const server_3 = require("../../../../app/settings/server");
+const rocketchat_info_1 = require("../../../../app/utils/rocketchat.info");
+const i18n_1 = require("../../../../server/lib/i18n");
+const sendMessagesToAdmins_1 = require("../../../../server/lib/sendMessagesToAdmins");
+const canEnableApp_1 = require("../../../app/license/server/canEnableApp");
+const formatAppInstanceForRest_1 = require("../../../lib/misc/formatAppInstanceForRest");
+const appInstall_1 = require("../marketplace/appInstall");
+const orchestrator_1 = require("../orchestrator");
+const actionButtonsHandler_1 = require("./endpoints/actionButtonsHandler");
+const appsCountHandler_1 = require("./endpoints/appsCountHandler");
+const rocketChatVersion = rocketchat_info_1.Info.version;
+const appsEngineVersionForMarketplace = rocketchat_info_1.Info.marketplaceApiVersion.replace(/-.*/g, '');
+const getDefaultHeaders = () => ({
+    'X-Apps-Engine-Version': appsEngineVersionForMarketplace,
+});
+const purchaseTypes = new Set(['buy', 'subscription']);
+class AppsRestApi {
+    constructor(orch, manager) {
+        this._orch = orch;
+        this._manager = manager;
+        void this.loadAPI();
+    }
+    loadAPI() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.api = new server_1.API.ApiClass({
+                version: 'apps',
+                useDefaultAuth: true,
+                prettyJson: false,
+                enableCors: false,
+                auth: server_1.API.getUserAuth(),
+            });
+            this.addManagementRoutes();
+        });
+    }
+    addManagementRoutes() {
+        const orchestrator = this._orch;
+        const manager = this._manager;
+        const handleError = (message, e) => {
+            // when there is no `response` field in the error, it means the request
+            // couldn't even make it to the server
+            if (!e.hasOwnProperty('response')) {
+                orchestrator.getRocketChatLogger().warn(message, e.message);
+                return server_1.API.v1.internalError('Could not reach the Marketplace');
+            }
+            orchestrator.getRocketChatLogger().error(message, e.response.data);
+            if (e.response.statusCode >= 500 && e.response.statusCode <= 599) {
+                return server_1.API.v1.internalError();
+            }
+            if (e.response.statusCode === 404) {
+                return server_1.API.v1.notFound();
+            }
+            return server_1.API.v1.failure();
+        };
+        this.api.addRoute('actionButtons', ...(0, actionButtonsHandler_1.actionButtonsHandler)(this));
+        this.api.addRoute('count', ...(0, appsCountHandler_1.appsCountHandler)(this));
+        this.api.addRoute('incompatibleModal', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const workspaceId = server_3.settings.get('Cloud_Workspace_Id');
+                    const { action, appId, appVersion } = this.queryParams;
+                    return server_1.API.v1.success({
+                        url: `${baseUrl}/apps/${appId}/incompatible/${appVersion}/${action}?workspaceId=${workspaceId}&rocketChatVersion=${rocketChatVersion}`,
+                    });
+                });
+            },
+        });
+        this.api.addRoute('marketplace', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    // Gets the Apps from the marketplace
+                    const headers = getDefaultHeaders();
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    let result;
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/apps`, {
+                            headers,
+                            params: Object.assign({}, (this.queryParams.isAdminUser === 'false' && { endUserID: this.user._id })),
+                        });
+                        if (request.status === 426) {
+                            orchestrator.getRocketChatLogger().error('Workspace out of support window:', yield request.json());
+                            return server_1.API.v1.failure({ error: 'unsupported version' });
+                        }
+                        if (request.status !== 200) {
+                            orchestrator.getRocketChatLogger().error('Error getting the Apps:', yield request.json());
+                            return server_1.API.v1.failure();
+                        }
+                        result = yield request.json();
+                        if (!request.ok) {
+                            throw new Error(result.error);
+                        }
+                    }
+                    catch (e) {
+                        return handleError('Unable to access Marketplace. Does the server has access to the internet?', e);
+                    }
+                    return server_1.API.v1.success(result);
+                });
+            },
+        });
+        this.api.addRoute('categories', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const headers = getDefaultHeaders();
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    let result;
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/categories`, { headers });
+                        if (request.status !== 200) {
+                            orchestrator.getRocketChatLogger().error('Error getting the Apps:', yield request.json());
+                            return server_1.API.v1.failure();
+                        }
+                        result = yield request.json();
+                    }
+                    catch (e) {
+                        return handleError('Unable to access Marketplace. Does the server has access to the internet?', e);
+                    }
+                    return server_1.API.v1.success(result);
+                });
+            },
+        });
+        this.api.addRoute('buildExternalUrl', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const workspaceId = server_3.settings.get('Cloud_Workspace_Id');
+                    if (!this.queryParams.purchaseType || !purchaseTypes.has(this.queryParams.purchaseType)) {
+                        return server_1.API.v1.failure({ error: 'Invalid purchase type' });
+                    }
+                    const response = yield (0, server_2.getWorkspaceAccessTokenWithScope)({ scope: 'marketplace:purchase' });
+                    if (!response.token) {
+                        return server_1.API.v1.failure({ error: 'Unauthorized' });
+                    }
+                    const subscribeRoute = this.queryParams.details === 'true' ? 'subscribe/details' : 'subscribe';
+                    const seats = yield models_1.Users.getActiveLocalUserCount();
+                    return server_1.API.v1.success({
+                        url: `${baseUrl}/apps/${this.queryParams.appId}/${this.queryParams.purchaseType === 'buy' ? this.queryParams.purchaseType : subscribeRoute}?workspaceId=${workspaceId}&token=${response.token}&seats=${seats}`,
+                    });
+                });
+            },
+        });
+        this.api.addRoute('installed', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const apps = yield manager.get();
+                    const formatted = yield Promise.all(apps.map(formatAppInstanceForRest_1.formatAppInstanceForRest));
+                    return server_1.API.v1.success({ apps: formatted });
+                });
+            },
+        });
+        // WE NEED TO MOVE EACH ENDPOINT HANDLER TO IT'S OWN FILE
+        this.api.addRoute('', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    // Gets the Apps from the marketplace
+                    if ('marketplace' in this.queryParams && this.queryParams.marketplace) {
+                        deprecationWarningLogger_1.apiDeprecationLogger.endpoint(this.request.route, '7.0.0', this.response, 'Use /apps/marketplace to get the apps list.');
+                        const headers = getDefaultHeaders();
+                        const token = yield (0, server_2.getWorkspaceAccessToken)();
+                        if (token) {
+                            headers.Authorization = `Bearer ${token}`;
+                        }
+                        let result;
+                        try {
+                            const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/apps`, { headers });
+                            if (request.status !== 200) {
+                                orchestrator.getRocketChatLogger().error('Error getting the Apps:', yield request.json());
+                                return server_1.API.v1.failure();
+                            }
+                            result = yield request.json();
+                        }
+                        catch (e) {
+                            return handleError('Unable to access Marketplace. Does the server has access to the internet?', e);
+                        }
+                        return server_1.API.v1.success(result);
+                    }
+                    if ('categories' in this.queryParams && this.queryParams.categories) {
+                        deprecationWarningLogger_1.apiDeprecationLogger.endpoint(this.request.route, '7.0.0', this.response, 'Use /apps/categories to get the categories list.');
+                        const headers = getDefaultHeaders();
+                        const token = yield (0, server_2.getWorkspaceAccessToken)();
+                        if (token) {
+                            headers.Authorization = `Bearer ${token}`;
+                        }
+                        let result;
+                        try {
+                            const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/categories`, { headers });
+                            if (request.status !== 200) {
+                                orchestrator.getRocketChatLogger().error('Error getting the Apps:', yield request.json());
+                                return server_1.API.v1.failure();
+                            }
+                            result = yield request.json();
+                        }
+                        catch (e) {
+                            orchestrator.getRocketChatLogger().error('Error getting the categories from the Marketplace:', e);
+                            return server_1.API.v1.internalError();
+                        }
+                        return server_1.API.v1.success(result);
+                    }
+                    if ('buildExternalUrl' in this.queryParams &&
+                        'appId' in this.queryParams &&
+                        this.queryParams.buildExternalUrl &&
+                        this.queryParams.appId) {
+                        deprecationWarningLogger_1.apiDeprecationLogger.endpoint(this.request.route, '7.0.0', this.response, 'Use /apps/buildExternalUrl to get the modal URLs.');
+                        const workspaceId = server_3.settings.get('Cloud_Workspace_Id');
+                        if (!this.queryParams.purchaseType || !purchaseTypes.has(this.queryParams.purchaseType)) {
+                            return server_1.API.v1.failure({ error: 'Invalid purchase type' });
+                        }
+                        const token = yield (0, server_2.getWorkspaceAccessTokenWithScope)({ scope: 'marketplace:purchase' });
+                        if (!token) {
+                            return server_1.API.v1.failure({ error: 'Unauthorized' });
+                        }
+                        const subscribeRoute = this.queryParams.details === 'true' ? 'subscribe/details' : 'subscribe';
+                        const seats = yield models_1.Users.getActiveLocalUserCount();
+                        return server_1.API.v1.success({
+                            url: `${baseUrl}/apps/${this.queryParams.appId}/${this.queryParams.purchaseType === 'buy' ? this.queryParams.purchaseType : subscribeRoute}?workspaceId=${workspaceId}&token=${token.token}&seats=${seats}`,
+                        });
+                    }
+                    deprecationWarningLogger_1.apiDeprecationLogger.endpoint(this.request.route, '7.0.0', this.response, 'Use /apps/installed to get the installed apps list.');
+                    const proxiedApps = yield manager.get();
+                    const apps = yield Promise.all(proxiedApps.map(formatAppInstanceForRest_1.formatAppInstanceForRest));
+                    return server_1.API.v1.success({ apps });
+                });
+            },
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    var _a, _b;
+                    let buff;
+                    let marketplaceInfo;
+                    let permissionsGranted;
+                    if (this.bodyParams.url) {
+                        try {
+                            const response = yield (0, server_fetch_1.serverFetch)(this.bodyParams.url);
+                            if (response.status !== 200 || response.headers.get('content-type') !== 'application/zip') {
+                                return server_1.API.v1.failure({
+                                    error: 'Invalid url. It doesn\'t exist or is not "application/zip".',
+                                });
+                            }
+                            buff = yield response.buffer();
+                        }
+                        catch (e) {
+                            orchestrator.getRocketChatLogger().error('Error getting the app from url:', e.response.data);
+                            return server_1.API.v1.internalError();
+                        }
+                    }
+                    else if ('appId' in this.bodyParams && this.bodyParams.appId && this.bodyParams.marketplace && this.bodyParams.version) {
+                        const baseUrl = orchestrator.getMarketplaceUrl();
+                        const headers = getDefaultHeaders();
+                        try {
+                            const downloadToken = yield (0, server_2.getWorkspaceAccessToken)(true, 'marketplace:download', false);
+                            const marketplaceToken = yield (0, server_2.getWorkspaceAccessToken)();
+                            const [downloadResponse, marketplaceResponse] = yield Promise.all([
+                                (0, server_fetch_1.serverFetch)(`${baseUrl}/v2/apps/${this.bodyParams.appId}/download/${this.bodyParams.version}?token=${downloadToken}`, {
+                                    headers,
+                                }),
+                                (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/apps/${this.bodyParams.appId}?appVersion=${this.bodyParams.version}`, {
+                                    headers: Object.assign({ Authorization: `Bearer ${marketplaceToken}` }, headers),
+                                }),
+                            ]);
+                            if (downloadResponse.headers.get('content-type') !== 'application/zip') {
+                                throw new Error('Invalid url. It doesn\'t exist or is not "application/zip".');
+                            }
+                            buff = Buffer.from(yield downloadResponse.arrayBuffer());
+                            marketplaceInfo = (yield marketplaceResponse.json());
+                            permissionsGranted = this.bodyParams.permissionsGranted;
+                        }
+                        catch (err) {
+                            return server_1.API.v1.failure(err.message);
+                        }
+                    }
+                    else {
+                        const app = yield (0, getUploadFormData_1.getUploadFormData)({
+                            request: this.request,
+                        }, { field: 'app', sizeLimit: server_3.settings.get('FileUpload_MaxFileSize') });
+                        const { fields: formData } = app;
+                        buff = app.fileBuffer;
+                        permissionsGranted = (() => {
+                            try {
+                                const permissions = JSON.parse((formData === null || formData === void 0 ? void 0 : formData.permissions) || '');
+                                return permissions.length ? permissions : undefined;
+                            }
+                            catch (_a) {
+                                return undefined;
+                            }
+                        })();
+                    }
+                    if (!buff) {
+                        return server_1.API.v1.failure({ error: 'Failed to get a file to install for the App. ' });
+                    }
+                    // Used mostly in Cloud hosting for security reasons
+                    if (!marketplaceInfo && orchestrator.shouldDisablePrivateAppInstallation()) {
+                        return server_1.API.v1.internalError('private_app_install_disabled');
+                    }
+                    const user = (_b = (_a = orchestrator === null || orchestrator === void 0 ? void 0 : orchestrator.getConverters()) === null || _a === void 0 ? void 0 : _a.get('users')) === null || _b === void 0 ? void 0 : _b.convertToApp(yield meteor_1.Meteor.userAsync());
+                    const aff = yield manager.add(buff, { marketplaceInfo, permissionsGranted, enable: false, user });
+                    const info = aff.getAppInfo();
+                    if (aff.hasStorageError()) {
+                        return server_1.API.v1.failure({ status: 'storage_error', messages: [aff.getStorageError()] });
+                    }
+                    if (aff.hasAppUserError()) {
+                        return server_1.API.v1.failure({
+                            status: 'app_user_error',
+                            messages: [aff.getAppUserError().message],
+                            payload: { username: aff.getAppUserError().username },
+                        });
+                    }
+                    info.status = yield aff.getApp().getStatus();
+                    void (0, appInstall_1.notifyAppInstall)(orchestrator.getMarketplaceUrl(), 'install', info);
+                    try {
+                        yield (0, canEnableApp_1.canEnableApp)(aff.getApp().getStorageItem());
+                        const success = yield manager.enable(info.id);
+                        info.status = success ? AppStatus_1.AppStatus.AUTO_ENABLED : info.status;
+                    }
+                    catch (error) {
+                        orchestrator.getRocketChatLogger().warn(`App "${info.id}" was installed but could not be enabled: `, error);
+                    }
+                    void orchestrator.getNotifier().appAdded(info.id);
+                    return server_1.API.v1.success({
+                        app: info,
+                        implemented: aff.getImplementedInferfaces(),
+                        licenseValidation: aff.getLicenseValidationResult(),
+                    });
+                });
+            },
+        });
+        this.api.addRoute('buildExternalAppRequest', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    var _a, _b;
+                    if (!this.queryParams.appId) {
+                        return server_1.API.v1.failure({ error: 'Invalid request. Please ensure an appId is attached to the request.' });
+                    }
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const workspaceId = server_3.settings.get('Cloud_Workspace_Id');
+                    const requester = {
+                        id: this.user._id,
+                        username: this.user.username,
+                        name: this.user.name,
+                        nickname: this.user.nickname,
+                        emails: (_b = (_a = this.user) === null || _a === void 0 ? void 0 : _a.emails) === null || _b === void 0 ? void 0 : _b.map((e) => e.address),
+                    };
+                    let admins = [];
+                    try {
+                        const adminsRaw = yield models_1.Users.findUsersInRoles(['admin'], undefined, {
+                            projection: {
+                                username: 1,
+                                name: 1,
+                                nickname: 1,
+                            },
+                        }).toArray();
+                        admins = adminsRaw.map((a) => {
+                            return {
+                                id: a._id,
+                                username: a.username,
+                                name: a.name,
+                                nickname: a.nickname,
+                            };
+                        });
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error('Error getting the admins to request an app be installed:', e);
+                    }
+                    const queryParams = new URLSearchParams();
+                    queryParams.set('workspaceId', workspaceId);
+                    queryParams.set('frameworkVersion', appsEngineVersionForMarketplace);
+                    queryParams.set('requester', Buffer.from(JSON.stringify(requester)).toString('base64'));
+                    queryParams.set('admins', Buffer.from(JSON.stringify(admins)).toString('base64'));
+                    return server_1.API.v1.success({
+                        url: `${baseUrl}/apps/${this.queryParams.appId}/requestAccess?${queryParams.toString()}`,
+                    });
+                });
+            },
+        });
+        this.api.addRoute('externalComponents', { authRequired: false }, {
+            get() {
+                const externalComponents = orchestrator.getProvidedComponents();
+                return server_1.API.v1.success({ externalComponents });
+            },
+        });
+        this.api.addRoute('languages', { authRequired: false }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const apps = (yield manager.get()).map((prl) => ({
+                        id: prl.getID(),
+                        languages: prl.getStorageItem().languageContent,
+                    }));
+                    return server_1.API.v1.success({ apps });
+                });
+            },
+        });
+        this.api.addRoute('externalComponentEvent', { authRequired: true }, {
+            post() {
+                var _a;
+                if (!this.bodyParams.externalComponent ||
+                    !this.bodyParams.event ||
+                    !['IPostExternalComponentOpened', 'IPostExternalComponentClosed'].includes(this.bodyParams.event)) {
+                    return server_1.API.v1.failure({ error: 'Event and externalComponent must be provided.' });
+                }
+                try {
+                    const { event, externalComponent } = this.bodyParams;
+                    const result = ((_a = orchestrator_1.Apps.getBridges()) === null || _a === void 0 ? void 0 : _a.getListenerBridge()).externalComponentEvent(event, externalComponent);
+                    return server_1.API.v1.success({ result });
+                }
+                catch (e) {
+                    orchestrator.getRocketChatLogger().error(`Error triggering external components' events ${e.response.data}`);
+                    return server_1.API.v1.internalError();
+                }
+            },
+        });
+        this.api.addRoute('bundles/:id/apps', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const headers = {};
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    let result;
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/bundles/${this.urlParams.id}/apps`, { headers });
+                        if (request.status !== 200) {
+                            orchestrator.getRocketChatLogger().error("Error getting the Bundle's Apps from the Marketplace:", yield request.json());
+                            return server_1.API.v1.failure();
+                        }
+                        result = yield request.json();
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error("Error getting the Bundle's Apps from the Marketplace:", e.response.data);
+                        return server_1.API.v1.internalError();
+                    }
+                    return server_1.API.v1.success({ apps: result });
+                });
+            },
+        });
+        this.api.addRoute('featured-apps', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const headers = getDefaultHeaders();
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    let result;
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/featured-apps`, { headers });
+                        if (request.status !== 200) {
+                            orchestrator.getRocketChatLogger().error('Error getting the Featured Apps from the Marketplace:', yield request.json());
+                            return server_1.API.v1.failure();
+                        }
+                        result = yield request.json();
+                    }
+                    catch (e) {
+                        return handleError('Unable to access Marketplace. Does the server has access to the internet?', e);
+                    }
+                    return server_1.API.v1.success(result);
+                });
+            },
+        });
+        this.api.addRoute(':id', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    if (this.queryParams.marketplace && this.queryParams.version) {
+                        const baseUrl = orchestrator.getMarketplaceUrl();
+                        const headers = {}; // DO NOT ATTACH THE FRAMEWORK/ENGINE VERSION HERE.
+                        const token = yield (0, server_2.getWorkspaceAccessToken)();
+                        if (token) {
+                            headers.Authorization = `Bearer ${token}`;
+                        }
+                        let result;
+                        try {
+                            const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/apps/${this.urlParams.id}?appVersion=${this.queryParams.version}`, { headers });
+                            if (request.status !== 200) {
+                                orchestrator.getRocketChatLogger().error('Error getting the App information from the Marketplace:', yield request.json());
+                                return server_1.API.v1.failure();
+                            }
+                            result = yield request.json();
+                        }
+                        catch (e) {
+                            return handleError('Unable to access Marketplace. Does the server has access to the internet?', e);
+                        }
+                        return server_1.API.v1.success({ app: result[0] });
+                    }
+                    if (this.queryParams.marketplace && this.queryParams.update && this.queryParams.appVersion) {
+                        const baseUrl = orchestrator.getMarketplaceUrl();
+                        const headers = getDefaultHeaders();
+                        const token = yield (0, server_2.getWorkspaceAccessToken)();
+                        if (token) {
+                            headers.Authorization = `Bearer ${token}`;
+                        }
+                        let result;
+                        try {
+                            const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/apps/${this.urlParams.id}/latest?appVersion=${this.queryParams.appVersion}`, {
+                                headers,
+                            });
+                            if (request.status !== 200) {
+                                orchestrator.getRocketChatLogger().error('Error getting the App update info from the Marketplace:', yield request.json());
+                                return server_1.API.v1.failure();
+                            }
+                            result = yield request.json();
+                        }
+                        catch (e) {
+                            return handleError('Unable to access Marketplace. Does the server has access to the internet?', e);
+                        }
+                        return server_1.API.v1.success({ app: result });
+                    }
+                    const app = manager.getOneById(this.urlParams.id);
+                    if (!app) {
+                        return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                    }
+                    return server_1.API.v1.success({
+                        app: (0, formatAppInstanceForRest_1.formatAppInstanceForRest)(app),
+                    });
+                });
+            },
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    var _a, _b;
+                    let buff;
+                    let permissionsGranted;
+                    let isPrivateAppUpload = false;
+                    if (this.bodyParams.url) {
+                        const response = yield (0, server_fetch_1.serverFetch)(this.bodyParams.url);
+                        if (response.status !== 200 || response.headers.get('content-type') !== 'application/zip') {
+                            return server_1.API.v1.failure({
+                                error: 'Invalid url. It doesn\'t exist or is not "application/zip".',
+                            });
+                        }
+                        buff = Buffer.from(yield response.arrayBuffer());
+                    }
+                    else if (this.bodyParams.appId && this.bodyParams.marketplace && this.bodyParams.version) {
+                        const baseUrl = orchestrator.getMarketplaceUrl();
+                        const headers = getDefaultHeaders();
+                        const token = yield (0, server_2.getWorkspaceAccessToken)(true, 'marketplace:download', false);
+                        try {
+                            const response = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v2/apps/${this.bodyParams.appId}/download/${this.bodyParams.version}?token=${token}`, {
+                                headers,
+                            });
+                            if (response.status !== 200) {
+                                orchestrator.getRocketChatLogger().error('Error getting the App from the Marketplace:', yield response.text());
+                                return server_1.API.v1.failure();
+                            }
+                            if (response.headers.get('content-type') !== 'application/zip') {
+                                return server_1.API.v1.failure({
+                                    error: 'Invalid url. It doesn\'t exist or is not "application/zip".',
+                                });
+                            }
+                            buff = Buffer.from(yield response.arrayBuffer());
+                        }
+                        catch (e) {
+                            orchestrator.getRocketChatLogger().error('Error getting the App from the Marketplace:', e.response.data);
+                            return server_1.API.v1.internalError();
+                        }
+                    }
+                    else {
+                        isPrivateAppUpload = true;
+                        const app = yield (0, getUploadFormData_1.getUploadFormData)({
+                            request: this.request,
+                        }, { field: 'app', sizeLimit: server_3.settings.get('FileUpload_MaxFileSize') });
+                        const { fields: formData } = app;
+                        buff = app.fileBuffer;
+                        permissionsGranted = (() => {
+                            try {
+                                const permissions = JSON.parse((formData === null || formData === void 0 ? void 0 : formData.permissions) || '');
+                                return permissions.length ? permissions : undefined;
+                            }
+                            catch (_a) {
+                                return undefined;
+                            }
+                        })();
+                    }
+                    if (!buff) {
+                        return server_1.API.v1.failure({ error: 'Failed to get a file to install for the App. ' });
+                    }
+                    if (isPrivateAppUpload && orchestrator.shouldDisablePrivateAppInstallation()) {
+                        return server_1.API.v1.internalError('private_app_install_disabled');
+                    }
+                    const isCommunityWorkspace = !license_1.License.hasValidLicense();
+                    // Note: exempt apps happen when a private app was uploaded to a community workspace before
+                    //       the private app restriction was enforced. We still allow the users to use their
+                    //       exempt apps, but they can't update them, since they could just upload a new version
+                    //       containing a totally different app under the same id :(
+                    const isExemptApp = isPrivateAppUpload && isCommunityWorkspace;
+                    if (isExemptApp) {
+                        return server_1.API.v1.failure({ error: 'Cannot_Update_Exempt_App' });
+                    }
+                    const user = (_b = (_a = orchestrator === null || orchestrator === void 0 ? void 0 : orchestrator.getConverters()) === null || _a === void 0 ? void 0 : _a.get('users')) === null || _b === void 0 ? void 0 : _b.convertToApp(yield meteor_1.Meteor.userAsync());
+                    const aff = yield manager.update(buff, permissionsGranted, { user, loadApp: true });
+                    const info = aff.getAppInfo();
+                    if (aff.hasStorageError()) {
+                        return server_1.API.v1.failure({ status: 'storage_error', messages: [aff.getStorageError()] });
+                    }
+                    if (aff.hasAppUserError()) {
+                        return server_1.API.v1.failure({
+                            status: 'app_user_error',
+                            messages: [aff.getAppUserError().message],
+                            payload: { username: aff.getAppUserError().username },
+                        });
+                    }
+                    info.status = yield aff.getApp().getStatus();
+                    void (0, appInstall_1.notifyAppInstall)(orchestrator.getMarketplaceUrl(), 'update', info);
+                    void orchestrator.getNotifier().appUpdated(info.id);
+                    return server_1.API.v1.success({
+                        app: info,
+                        implemented: aff.getImplementedInferfaces(),
+                        licenseValidation: aff.getLicenseValidationResult(),
+                    });
+                });
+            },
+            delete() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    var _a;
+                    const prl = manager.getOneById(this.urlParams.id);
+                    if (!prl) {
+                        return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                    }
+                    const user = (_a = orchestrator === null || orchestrator === void 0 ? void 0 : orchestrator.getConverters()) === null || _a === void 0 ? void 0 : _a.get('users').convertToApp(yield meteor_1.Meteor.userAsync());
+                    const info = prl.getInfo();
+                    try {
+                        yield manager.remove(prl.getID(), { user });
+                        info.status = AppStatus_1.AppStatus.DISABLED;
+                    }
+                    catch (e) {
+                        info.status = yield prl.getStatus();
+                        return server_1.API.v1.failure({ app: info });
+                    }
+                    void (0, appInstall_1.notifyAppInstall)(orchestrator.getMarketplaceUrl(), 'uninstall', info);
+                    return server_1.API.v1.success({ app: info });
+                });
+            },
+        });
+        this.api.addRoute(':id/versions', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const headers = {}; // DO NOT ATTACH THE FRAMEWORK/ENGINE VERSION HERE.
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    let result;
+                    let statusCode;
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/apps/${this.urlParams.id}`, { headers });
+                        statusCode = request.status;
+                        result = yield request.json();
+                        if (!request.ok) {
+                            throw new Error(result.error);
+                        }
+                    }
+                    catch (e) {
+                        return handleError('Unable to access Marketplace. Does the server has access to the internet?', e);
+                    }
+                    if (!result || statusCode !== 200) {
+                        orchestrator.getRocketChatLogger().error('Error getting the App versions from the Marketplace:', result);
+                        return server_1.API.v1.failure();
+                    }
+                    return server_1.API.v1.success({ apps: result });
+                });
+            },
+        });
+        this.api.addRoute('notify-admins', { authRequired: true }, {
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const { appId, appName, appVersion, message } = this.bodyParams;
+                    const workspaceUrl = server_3.settings.get('Site_Url');
+                    const regex = new RegExp('\\/$', 'gm');
+                    const safeWorkspaceUrl = workspaceUrl.replace(regex, '');
+                    const learnMore = `${safeWorkspaceUrl}/marketplace/explore/info/${appId}/${appVersion}/requests`;
+                    try {
+                        const msgs = (_a) => __awaiter(this, [_a], void 0, function* ({ adminUser }) {
+                            return {
+                                msg: i18n_1.i18n.t('App_Request_Admin_Message', {
+                                    admin_name: adminUser.name || '',
+                                    app_name: appName || '',
+                                    user_name: `@${this.user.username}`,
+                                    message: message || '',
+                                    learn_more: learnMore,
+                                    interpolation: { escapeValue: false },
+                                }),
+                            };
+                        });
+                        yield (0, sendMessagesToAdmins_1.sendMessagesToAdmins)({ msgs });
+                        return server_1.API.v1.success();
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error('Error when notifying admins that an user requested an app:', e);
+                        return server_1.API.v1.failure();
+                    }
+                });
+            },
+        });
+        this.api.addRoute(':id/sync', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const headers = getDefaultHeaders();
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    const workspaceIdSetting = yield models_1.Settings.findOneById('Cloud_Workspace_Id');
+                    if (!workspaceIdSetting) {
+                        return server_1.API.v1.failure('No workspace id found');
+                    }
+                    let result;
+                    let statusCode;
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/workspaces/${workspaceIdSetting.value}/apps/${this.urlParams.id}`, { headers });
+                        statusCode = request.status;
+                        result = yield request.json();
+                        if (!request.ok) {
+                            throw new Error(result.error);
+                        }
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error('Error syncing the App from the Marketplace:', e);
+                        return server_1.API.v1.internalError();
+                    }
+                    if (statusCode !== 200) {
+                        orchestrator.getRocketChatLogger().error('Error syncing the App from the Marketplace:', result);
+                        return server_1.API.v1.failure();
+                    }
+                    yield orchestrator_1.Apps.updateAppsMarketplaceInfo([result]);
+                    return server_1.API.v1.success({ app: result });
+                });
+            },
+        });
+        this.api.addRoute(':id/icon', { authRequired: false }, {
+            get() {
+                const prl = manager.getOneById(this.urlParams.id);
+                if (!prl) {
+                    return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                }
+                const info = prl.getInfo();
+                if (!(info === null || info === void 0 ? void 0 : info.iconFileContent)) {
+                    return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                }
+                const imageData = info.iconFileContent.split(';base64,');
+                const buf = Buffer.from(imageData[1], 'base64');
+                return {
+                    statusCode: 200,
+                    headers: {
+                        'Content-Length': buf.length,
+                        'Content-Type': imageData[0].replace('data:', ''),
+                    },
+                    body: buf,
+                };
+            },
+        });
+        this.api.addRoute(':id/screenshots', { authRequired: false }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const appId = this.urlParams.id;
+                    const headers = getDefaultHeaders();
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/apps/${appId}/screenshots`, { headers });
+                        const data = yield request.json();
+                        return server_1.API.v1.success({
+                            screenshots: data,
+                        });
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error('Error getting the screenshots from the Marketplace:', e.message);
+                        return server_1.API.v1.failure(e.message);
+                    }
+                });
+            },
+        });
+        this.api.addRoute(':id/languages', { authRequired: false }, {
+            get() {
+                const prl = manager.getOneById(this.urlParams.id);
+                if (prl) {
+                    const languages = prl.getStorageItem().languageContent || {};
+                    return server_1.API.v1.success({ languages });
+                }
+                return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+            },
+        });
+        this.api.addRoute(':id/logs', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    var _a;
+                    const prl = manager.getOneById(this.urlParams.id);
+                    if (prl) {
+                        const { offset, count } = yield (0, getPaginationItems_1.getPaginationItems)(this.queryParams);
+                        const { sort, fields, query } = yield this.parseJsonQuery();
+                        const ourQuery = Object.assign({}, query, { appId: prl.getID() });
+                        const options = {
+                            sort: sort || { _updatedAt: -1 },
+                            skip: offset,
+                            limit: count,
+                            fields,
+                        };
+                        const logs = yield ((_a = orchestrator === null || orchestrator === void 0 ? void 0 : orchestrator.getLogStorage()) === null || _a === void 0 ? void 0 : _a.find(ourQuery, options));
+                        return server_1.API.v1.success({ logs });
+                    }
+                    return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                });
+            },
+        });
+        this.api.addRoute(':id/settings', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                const prl = manager.getOneById(this.urlParams.id);
+                if (prl) {
+                    const settings = Object.assign({}, prl.getStorageItem().settings);
+                    Object.keys(settings).forEach((k) => {
+                        if (settings[k].hidden) {
+                            delete settings[k];
+                        }
+                    });
+                    return server_1.API.v1.success({ settings });
+                }
+                return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+            },
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    var _a, e_1, _b, _c;
+                    var _d;
+                    if (!((_d = this.bodyParams) === null || _d === void 0 ? void 0 : _d.settings)) {
+                        return server_1.API.v1.failure('The settings to update must be present.');
+                    }
+                    const prl = manager.getOneById(this.urlParams.id);
+                    if (!prl) {
+                        return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                    }
+                    const { settings } = prl.getStorageItem();
+                    const updated = [];
+                    try {
+                        for (var _e = true, _f = __asyncValues(this.bodyParams.settings), _g; _g = yield _f.next(), _a = _g.done, !_a; _e = true) {
+                            _c = _g.value;
+                            _e = false;
+                            const s = _c;
+                            if (settings[s.id] && settings[s.id].value !== s.value) {
+                                yield manager.getSettingsManager().updateAppSetting(this.urlParams.id, s);
+                                // Updating?
+                                updated.push(s);
+                            }
+                        }
+                    }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (!_e && !_a && (_b = _f.return)) yield _b.call(_f);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                    }
+                    return server_1.API.v1.success({ updated });
+                });
+            },
+        });
+        this.api.addRoute(':id/settings/:settingId', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                try {
+                    const setting = manager.getSettingsManager().getAppSetting(this.urlParams.id, this.urlParams.settingId);
+                    return server_1.API.v1.success({ setting });
+                }
+                catch (e) {
+                    if (e.message.includes('No setting found')) {
+                        return server_1.API.v1.notFound(`No Setting found on the App by the id of: "${this.urlParams.settingId}"`);
+                    }
+                    if (e.message.includes('No App found')) {
+                        return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                    }
+                    return server_1.API.v1.failure(e.message);
+                }
+            },
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    if (!this.bodyParams.setting) {
+                        return server_1.API.v1.failure('Setting to update to must be present on the posted body.');
+                    }
+                    try {
+                        yield manager.getSettingsManager().updateAppSetting(this.urlParams.id, this.bodyParams.setting);
+                        return server_1.API.v1.success();
+                    }
+                    catch (e) {
+                        if (e.message.includes('No setting found')) {
+                            return server_1.API.v1.notFound(`No Setting found on the App by the id of: "${this.urlParams.settingId}"`);
+                        }
+                        if (e.message.includes('No App found')) {
+                            return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+                        }
+                        return server_1.API.v1.failure(e.message);
+                    }
+                });
+            },
+        });
+        this.api.addRoute(':id/apis', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                const prl = manager.getOneById(this.urlParams.id);
+                if (prl) {
+                    return server_1.API.v1.success({
+                        apis: manager.apiManager.listApis(this.urlParams.id), // TODO: this is accessing a private property from the manager, we should expose a method to get the list of APIs
+                    });
+                }
+                return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+            },
+        });
+        this.api.addRoute(':id/status', { authRequired: true, permissionsRequired: ['manage-apps'] }, {
+            get() {
+                const prl = manager.getOneById(this.urlParams.id);
+                if (prl) {
+                    return server_1.API.v1.success({ status: prl.getStatus() });
+                }
+                return server_1.API.v1.notFound(`No App found by the id of: ${this.urlParams.id}`);
+            },
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const { id: appId } = this.urlParams;
+                    const { status } = this.bodyParams;
+                    if (!status || typeof status !== 'string') {
+                        return server_1.API.v1.failure('Invalid status provided, it must be "status" field and a string.');
+                    }
+                    const prl = manager.getOneById(appId);
+                    if (!prl) {
+                        return server_1.API.v1.notFound(`No App found by the id of: ${appId}`);
+                    }
+                    if (AppStatus_1.AppStatusUtils.isEnabled(status)) {
+                        try {
+                            yield (0, canEnableApp_1.canEnableApp)(prl.getStorageItem());
+                        }
+                        catch (error) {
+                            return server_1.API.v1.failure(error.message);
+                        }
+                    }
+                    const result = yield manager.changeStatus(prl.getID(), status);
+                    return server_1.API.v1.success({ status: result.getStatus() });
+                });
+            },
+        });
+        this.api.addRoute('app-request', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const { appId, q = '', sort = '', limit = 25, offset = 0 } = this.queryParams;
+                    const headers = getDefaultHeaders();
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/app-request?appId=${appId}&q=${q}&sort=${sort}&limit=${limit}&offset=${offset}`, {
+                            headers,
+                        });
+                        const result = yield request.json();
+                        if (!request.ok) {
+                            throw new Error(result.error);
+                        }
+                        return server_1.API.v1.success(result);
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error('Error getting all non sent app requests from the Marketplace:', e.message);
+                        return server_1.API.v1.failure(e.message);
+                    }
+                });
+            },
+        });
+        this.api.addRoute('app-request/stats', { authRequired: true }, {
+            get() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const headers = getDefaultHeaders();
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/app-request/stats`, { headers });
+                        const result = yield request.json();
+                        if (!request.ok) {
+                            throw new Error(result.error);
+                        }
+                        return server_1.API.v1.success(result);
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error('Error getting the app requests stats from marketplace', e.message);
+                        return server_1.API.v1.failure(e.message);
+                    }
+                });
+            },
+        });
+        this.api.addRoute('app-request/markAsSeen', { authRequired: true }, {
+            post() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const baseUrl = orchestrator.getMarketplaceUrl();
+                    const headers = getDefaultHeaders();
+                    const token = yield (0, server_2.getWorkspaceAccessToken)();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                    const { unseenRequests } = this.bodyParams;
+                    try {
+                        const request = yield (0, server_fetch_1.serverFetch)(`${baseUrl}/v1/app-request/markAsSeen`, {
+                            method: 'POST',
+                            headers,
+                            body: { ids: unseenRequests },
+                        });
+                        const result = yield request.json();
+                        if (!request.ok) {
+                            throw new Error(result.error);
+                        }
+                        return server_1.API.v1.success(result);
+                    }
+                    catch (e) {
+                        orchestrator.getRocketChatLogger().error('Error marking app requests as seen', e.message);
+                        return server_1.API.v1.failure(e.message);
+                    }
+                });
+            },
+        });
+    }
+}
+exports.AppsRestApi = AppsRestApi;

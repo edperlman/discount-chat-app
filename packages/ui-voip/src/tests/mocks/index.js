@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createMockVoipIncomingSession = exports.createMockVoipOutgoingSession = exports.createMockVoipErrorSession = exports.createMockVoipOngoingSession = exports.createMockVoipSession = exports.createMockFreeSwitchExtensionDetails = void 0;
+const createMockFreeSwitchExtensionDetails = (overwrite) => (Object.assign({ extension: '1000', context: 'default', domain: '', groups: ['default'], status: 'REGISTERED', contact: '', callGroup: 'techsupport', callerName: 'Extension 1000', callerNumber: '1000', userId: '', name: 'Administrator', username: 'administrator', success: true }, overwrite));
+exports.createMockFreeSwitchExtensionDetails = createMockFreeSwitchExtensionDetails;
+const createMockVoipSession = (partial) => (Object.assign({ type: 'INCOMING', contact: { name: 'test', id: '1000', host: '' }, transferedBy: null, isMuted: false, isHeld: false, error: { status: -1, reason: '' }, accept: jest.fn(), end: jest.fn(), mute: jest.fn(), hold: jest.fn(), dtmf: jest.fn() }, partial));
+exports.createMockVoipSession = createMockVoipSession;
+const createMockVoipOngoingSession = (partial) => (Object.assign({ type: 'ONGOING', contact: { name: 'test', id: '1000', host: '' }, transferedBy: null, isMuted: false, isHeld: false, accept: jest.fn(), end: jest.fn(), mute: jest.fn(), hold: jest.fn(), dtmf: jest.fn() }, partial));
+exports.createMockVoipOngoingSession = createMockVoipOngoingSession;
+const createMockVoipErrorSession = (partial) => (Object.assign({ type: 'ERROR', contact: { name: 'test', id: '1000', host: '' }, error: { status: -1, reason: '' }, end: jest.fn() }, partial));
+exports.createMockVoipErrorSession = createMockVoipErrorSession;
+const createMockVoipOutgoingSession = (partial) => (Object.assign({ type: 'OUTGOING', contact: { name: 'test', id: '1000', host: '' }, end: jest.fn() }, partial));
+exports.createMockVoipOutgoingSession = createMockVoipOutgoingSession;
+const createMockVoipIncomingSession = (partial) => (Object.assign({ type: 'INCOMING', contact: { name: 'test', id: '1000', host: '' }, transferedBy: null, end: jest.fn(), accept: jest.fn() }, partial));
+exports.createMockVoipIncomingSession = createMockVoipIncomingSession;

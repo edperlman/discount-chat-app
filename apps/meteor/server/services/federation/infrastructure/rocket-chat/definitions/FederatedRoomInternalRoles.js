@@ -1,0 +1,8 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ROCKET_CHAT_FEDERATION_ROLES = void 0;
+var ROCKET_CHAT_FEDERATION_ROLES;
+(function (ROCKET_CHAT_FEDERATION_ROLES) {
+    ROCKET_CHAT_FEDERATION_ROLES["MODERATOR"] = "moderator";
+    ROCKET_CHAT_FEDERATION_ROLES["OWNER"] = "owner";
+})(ROCKET_CHAT_FEDERATION_ROLES || (exports.ROCKET_CHAT_FEDERATION_ROLES = ROCKET_CHAT_FEDERATION_ROLES = {}));

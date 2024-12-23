@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MessageTypes = exports.IframeLogin = exports.mainReady = exports.RoomHistoryManager = exports.upsertMessage = exports.LegacyRoomManager = exports.messageBox = void 0;
+var messageBox_1 = require("./lib/messageBox");
+Object.defineProperty(exports, "messageBox", { enumerable: true, get: function () { return messageBox_1.messageBox; } });
+var LegacyRoomManager_1 = require("./lib/LegacyRoomManager");
+Object.defineProperty(exports, "LegacyRoomManager", { enumerable: true, get: function () { return LegacyRoomManager_1.LegacyRoomManager; } });
+var RoomHistoryManager_1 = require("./lib/RoomHistoryManager");
+Object.defineProperty(exports, "upsertMessage", { enumerable: true, get: function () { return RoomHistoryManager_1.upsertMessage; } });
+Object.defineProperty(exports, "RoomHistoryManager", { enumerable: true, get: function () { return RoomHistoryManager_1.RoomHistoryManager; } });
+var mainReady_1 = require("./lib/mainReady");
+Object.defineProperty(exports, "mainReady", { enumerable: true, get: function () { return mainReady_1.mainReady; } });
+var IframeLogin_1 = require("./lib/IframeLogin");
+Object.defineProperty(exports, "IframeLogin", { enumerable: true, get: function () { return IframeLogin_1.IframeLogin; } });
+var MessageTypes_1 = require("../lib/MessageTypes");
+Object.defineProperty(exports, "MessageTypes", { enumerable: true, get: function () { return MessageTypes_1.MessageTypes; } });

@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.setupLogger = exports.serverLogger = exports.httpLogger = exports.dnsLogger = exports.cryptLogger = exports.clientLogger = void 0;
+const logger_1 = require("@rocket.chat/logger");
+const logger = new logger_1.Logger('Federation');
+exports.clientLogger = logger.section('client');
+exports.cryptLogger = logger.section('crypt');
+exports.dnsLogger = logger.section('dns');
+exports.httpLogger = logger.section('http');
+exports.serverLogger = logger.section('server');
+exports.setupLogger = logger.section('Setup');

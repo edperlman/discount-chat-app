@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.userHasAllPermission = exports.hasPermission = exports.hasAnyRole = exports.hasRole = exports.hasAtLeastOnePermission = exports.hasAllPermission = void 0;
+const hasPermission_1 = require("./hasPermission");
+Object.defineProperty(exports, "hasAllPermission", { enumerable: true, get: function () { return hasPermission_1.hasAllPermission; } });
+Object.defineProperty(exports, "hasAtLeastOnePermission", { enumerable: true, get: function () { return hasPermission_1.hasAtLeastOnePermission; } });
+Object.defineProperty(exports, "hasPermission", { enumerable: true, get: function () { return hasPermission_1.hasPermission; } });
+Object.defineProperty(exports, "userHasAllPermission", { enumerable: true, get: function () { return hasPermission_1.userHasAllPermission; } });
+const hasRole_1 = require("./hasRole");
+Object.defineProperty(exports, "hasRole", { enumerable: true, get: function () { return hasRole_1.hasRole; } });
+Object.defineProperty(exports, "hasAnyRole", { enumerable: true, get: function () { return hasRole_1.hasAnyRole; } });
+require("./restrictedRoles");

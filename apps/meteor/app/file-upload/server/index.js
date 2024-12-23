@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FileUpload = void 0;
+require("../lib/FileUploadBase");
+const FileUpload_1 = require("./lib/FileUpload");
+Object.defineProperty(exports, "FileUpload", { enumerable: true, get: function () { return FileUpload_1.FileUpload; } });
+require("./lib/proxy");
+require("./lib/requests");
+require("./config/_configUploadStorage");
+require("./methods/sendFileMessage");
+require("./methods/getS3FileUrl");

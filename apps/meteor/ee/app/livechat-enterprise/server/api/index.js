@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("./agents");
+require("./departments");
+require("./inquiries");
+require("./monitors");
+require("./sla");
+require("./priorities");
+require("./tags");
+require("./units");
+require("./business-hours");
+require("./rooms");
+require("./transcript");
+require("./reports");
+require("./triggers");
+require("./contacts");

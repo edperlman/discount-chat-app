@@ -1,46 +1,39 @@
 {
   "name": "discount-chat-app",
   "version": "1.0.0",
-  "description": "A clean start for Discount Chat App Monorepo",
-  "main": "app.js",
-  "private": true,
+  "description": "A messaging platform enabling discounts and group discounts.",
+  "main": "index.js",
   "scripts": {
-    "dev": "npm run clean && npm install && npm start",
-    "build": "npm run clean && npm install && npm run compile",
-    "clean": "rimraf node_modules .turbo package-lock.json",
-    "start": "node src/server.js",
-    "test": "echo 'No tests configured yet.'",
-    "setup": "npm install && npm run build",
-    "format": "prettier --write \"**/*.{js,ts,json,md}\"",
-    "build:services": "npm run compile",
-    "compile": "echo 'Building and compiling services...' && tsc"
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec npx ts-node src/server.ts",
+    "build": "tsc",
+    "test": "jest",
+    "clean": "rimraf dist node_modules",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write ."
   },
   "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "mongodb": "^6.12.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.0",
+    "lodash": "^4.17.21",
+    "pg": "^8.11.1"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.11",
-    "prettier": "^3.1.0",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.2.2"
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.2",
+    "@types/node": "^20.4.8",
+    "eslint": "^8.51.0",
+    "jest": "^29.6.1",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-repository.git"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  },
-  "author": "Ed Perlman",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/your-repository/issues"
-  },
-  "homepage": "https://github.com/your-repository#readme"
+  "author": "Your Name",
+  "license": "MIT"
 }

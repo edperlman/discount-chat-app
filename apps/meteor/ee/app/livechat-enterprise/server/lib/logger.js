@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.schedulerLogger = exports.contactLogger = exports.bhLogger = exports.cbLogger = exports.helperLogger = exports.queriesLogger = exports.logger = void 0;
+const logger_1 = require("@rocket.chat/logger");
+exports.logger = new logger_1.Logger('LivechatEnterprise');
+exports.queriesLogger = exports.logger.section('Queries');
+exports.helperLogger = exports.logger.section('Helper');
+exports.cbLogger = exports.logger.section('Callbacks');
+exports.bhLogger = exports.logger.section('Business-Hours');
+exports.contactLogger = exports.logger.section('Contacts');
+exports.schedulerLogger = new logger_1.Logger('Scheduler');

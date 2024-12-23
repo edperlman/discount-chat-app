@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MESSAGE_TYPE_LIVECHAT_NAVIGATION_HISTORY = exports.MESSAGE_TYPE_SLA_CHANGE = exports.MESSAGE_TYPE_PRIORITY_CHANGE = exports.MESSAGE_VIDEO_CALL = exports.MESSAGE_WEBRTC_CALL = exports.MESSAGE_TYPE_LIVECHAT_TRANSFER_HISTORY = exports.MESSAGE_TYPE_LIVECHAT_STARTED = exports.MESSAGE_TYPE_LIVECHAT_CLOSED = exports.MESSAGE_TYPE_COMMAND = exports.MESSAGE_TYPE_WELCOME = exports.MESSAGE_TYPE_USER_LEFT = exports.MESSAGE_TYPE_USER_JOINED = exports.MESSAGE_TYPE_USER_REMOVED = exports.MESSAGE_TYPE_USER_ADDED = exports.MESSAGE_TYPE_ROOM_NAME_CHANGED = void 0;
+exports.MESSAGE_TYPE_ROOM_NAME_CHANGED = 'r';
+exports.MESSAGE_TYPE_USER_ADDED = 'au';
+exports.MESSAGE_TYPE_USER_REMOVED = 'ru';
+exports.MESSAGE_TYPE_USER_JOINED = 'uj';
+exports.MESSAGE_TYPE_USER_LEFT = 'ul';
+exports.MESSAGE_TYPE_WELCOME = 'wm';
+exports.MESSAGE_TYPE_COMMAND = 'command';
+exports.MESSAGE_TYPE_LIVECHAT_CLOSED = 'livechat-close';
+exports.MESSAGE_TYPE_LIVECHAT_STARTED = 'livechat-started';
+exports.MESSAGE_TYPE_LIVECHAT_TRANSFER_HISTORY = 'livechat_transfer_history';
+exports.MESSAGE_WEBRTC_CALL = 'livechat_webrtc_video_call';
+exports.MESSAGE_VIDEO_CALL = 'livechat_video_call';
+exports.MESSAGE_TYPE_PRIORITY_CHANGE = 'omnichannel_priority_change_history';
+exports.MESSAGE_TYPE_SLA_CHANGE = 'omnichannel_sla_change_history';
+exports.MESSAGE_TYPE_LIVECHAT_NAVIGATION_HISTORY = 'livechat_navigation_history';
