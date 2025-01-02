@@ -10,10 +10,11 @@ on:
 
 permissions:
   contents: write
+  security-events: write
 
 jobs:
   analyze:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 
     strategy:
       matrix:
         language: [javascript-typescript]
@@ -58,6 +59,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+          cli-version: 2.20.0
 
       # Step 10: Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
