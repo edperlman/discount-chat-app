@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-22.04 
     strategy:
       matrix:
-        language: [javascript-typescript]
+        language: [javascript, typescript]
 
     steps:
       # Step 1: Check out the repository
@@ -34,7 +34,7 @@ jobs:
       - name: Clear npm cache
         run: npm cache clean --force
 
-      # Step 4: Configure npm registry (optional but useful for network issues)
+      # Step 4: Configure npm registry
       - name: Configure npm registry
         run: npm config set registry https://registry.npmjs.org/
 
@@ -64,7 +64,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "${{ matrix.language }}-analysis"
+          category: "codeql-${{ matrix.language }}-${{ github.run_id }}"
 
       # Step 11: Upload SARIF Results
       - name: Upload SARIF Results
