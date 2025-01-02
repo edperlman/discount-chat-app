@@ -59,17 +59,13 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          cli-version: 2.20.0
 
       # Step 10: Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
-          output: codeql_databases/javascript.zip
+          category: "${{ matrix.language }}-analysis"
 
       # Step 11: Upload SARIF Results
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: codeql_databases/javascript.zip
