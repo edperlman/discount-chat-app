@@ -2055,7 +2055,8 @@ describe('[Users]', () => {
 		);
 
 		const newPassword = `${password}test`;
-		const currentPassword = crypto.createHash('sha256').update(password, 'utf8').digest('hex');
+		const salt = bcrypt.genSaltSync(10);
+		const currentPassword = bcrypt.hashSync(password, salt);
 		const editedUsername = `basicInfo.name${+new Date()}`;
 		const editedName = `basic-info-test-name${+new Date()}`;
 		const editedEmail = `test${+new Date()}@mail.com`;
@@ -2174,7 +2175,7 @@ describe('[Users]', () => {
 				.send({
 					data: {
 						email: editedEmail,
-						currentPassword: crypto.createHash('sha256').update(newPassword, 'utf8').digest('hex'),
+						currentPassword: bcrypt.hashSync(newPassword, salt),
 					},
 				})
 				.expect('Content-Type', 'application/json')
