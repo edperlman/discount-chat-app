@@ -33,7 +33,7 @@ export class AppApisBridge extends ApiBridge {
 
 			const router = this.appRouters.get(req.params.appId);
 
-			if (router) {
+			if (router && typeof router === 'function') {
 				req._privateHash = req.params.hash;
 				return router(req, res, notFound);
 			}
