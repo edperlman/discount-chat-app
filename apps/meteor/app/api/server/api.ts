@@ -103,11 +103,14 @@ const getRequestIP = (req: Request): string | null => {
 		return remoteAddress;
 	}
 
-	forwardedFor = forwardedFor.trim().split(/\s*,\s*/);
-	if (httpForwardedCount > forwardedFor.length) {
-		return remoteAddress;
-	}
+	forwardedFor = forwardedFor
+     .trim()
+     .split(',')
+     .map((part: string) => part.trim());
 
+if (httpForwardedCount > forwardedFor.length) {
+  return remoteAddress;
+}
 	return forwardedFor[forwardedFor.length - httpForwardedCount];
 };
 
