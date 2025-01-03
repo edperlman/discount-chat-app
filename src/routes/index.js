@@ -5,6 +5,7 @@ const homeController = require('../controllers/homeController');
 const { registerUser, loginUser, getUserProfile } = require('../controllers/userController');
 const { validateRegistration } = require('../middleware/validators');
 const { authenticateToken } = require('../middleware/authenticate'); // Import authentication middleware
+const rateLimit = require('express-rate-limit'); // Import rate limiting middleware
 
 // Debugging logs for imported functions
 console.log('registerUser:', typeof registerUser);
@@ -30,8 +31,14 @@ router.post('/register', validateRegistration, registerUser);
 // User login route
 router.post('/login', loginUser);
 
+// Set up rate limiter: maximum of 100 requests per 15 minutes
+const profileLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // max 100 requests per windowMs
+});
+
 // User profile route (protected)
-router.get('/profile', authenticateToken, getUserProfile);
+router.get('/profile', profileLimiter, authenticateToken, getUserProfile);
 
 // Export the router
 module.exports = router;
