@@ -4,6 +4,7 @@ import { UserStatus } from '@rocket.chat/core-typings';
 
 import { api, credentials, request } from './api-data';
 import { password } from './user';
+import { randomBytes } from 'crypto';
 
 export type TestUser<TUser extends IUser> = TUser & { username: string; emails: string[] };
 
@@ -21,7 +22,7 @@ export const createUser = <TUser extends IUser>(
 	} = {},
 ) =>
 	new Promise<TestUser<TUser>>((resolve, reject) => {
-		const username = userData.username || `user.test.${Date.now()}.${Math.random()}`;
+		const username = userData.username || `user.test.${Date.now()}.${randomBytes(4).toString('hex')}`;
 		const email = userData.email || `${username}@rocket.chat`;
 		void request
 			.post(api('users.create'))
