@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 import type { Credentials } from '@rocket.chat/api-client';
 import type { IGetRoomRoles, IRoom, ISubscription, ITeam, IUser } from '@rocket.chat/core-typings';
@@ -2931,7 +2932,7 @@ describe('[Users]', () => {
 					.post(api('users.deleteOwnAccount'))
 					.set(createdUserCredentials)
 					.send({
-						password: crypto.createHash('sha256').update(password, 'utf8').digest('hex'),
+						password: bcrypt.hashSync(password, 10),
 						confirmRelinquish: true,
 					})
 					.expect('Content-Type', 'application/json')
@@ -2946,7 +2947,7 @@ describe('[Users]', () => {
 					.post(api('users.deleteOwnAccount'))
 					.set(createdUserCredentials)
 					.send({
-						password: crypto.createHash('sha256').update(password, 'utf8').digest('hex'),
+						password: bcrypt.hashSync(password, 10),
 						confirmRelinquish: true,
 					})
 					.expect('Content-Type', 'application/json')
