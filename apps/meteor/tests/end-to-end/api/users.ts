@@ -2858,7 +2858,7 @@ describe('[Users]', () => {
 				.post(api('users.deleteOwnAccount'))
 				.set(userCredentials)
 				.send({
-					password: crypto.createHash('sha256').update(password, 'utf8').digest('hex'),
+					password: bcrypt.hashSync(password, 10),
 				})
 				.expect('Content-Type', 'application/json')
 				.expect(200)
@@ -2875,7 +2875,7 @@ describe('[Users]', () => {
 				.post(api('users.deleteOwnAccount'))
 				.set(createdUserCredentials)
 				.send({
-					password: crypto.createHash('sha256').update(password, 'utf8').digest('hex').toUpperCase(),
+					password: bcrypt.hashSync(password, 10).toUpperCase(),
 				})
 				.expect('Content-Type', 'application/json')
 				.expect(200)
