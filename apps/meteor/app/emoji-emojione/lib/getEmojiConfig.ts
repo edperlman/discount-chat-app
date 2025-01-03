@@ -172,8 +172,8 @@ emojione.unicodeCharRegex = mem(emojione.unicodeCharRegex, { maxAge: 1000 });
 
 const convertShortName = mem(
 	(shortname) => {
-		// the fix is basically adding this .replace(/[+]/g, '\\$&')
-		if (typeof shortname === 'undefined' || shortname === '' || emojione.shortnames.indexOf(shortname.replace(/[+]/g, '\\$&')) === -1) {
+		// the fix is basically adding this .replace(/\\/g, '\\\\').replace(/[+]/g, '\\$&')
+		if (typeof shortname === 'undefined' || shortname === '' || emojione.shortnames.indexOf(shortname.replace(/\\/g, '\\\\').replace(/[+]/g, '\\$&')) === -1) {
 			// if the shortname doesnt exist just return the entire match
 			return shortname;
 		}
