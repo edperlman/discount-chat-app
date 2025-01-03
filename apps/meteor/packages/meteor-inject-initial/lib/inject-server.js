@@ -77,7 +77,7 @@ Inject = {
 		let injectHtml = '';
 		for (id in objs) {
 			obj = _.isFunction(objs[id]) ? objs[id](res) : objs[id];
-			injectHtml += `  <script id='${id.replace("'", '&apos;')}' type='application/ejson'>${EJSON.stringify(obj)}</script>\n`;
+			injectHtml += `  <script id='${id.replace(/'/g, '&apos;')}' type='application/ejson'>${EJSON.stringify(obj)}</script>\n`;
 		}
 
 		return html.replace('<head>', `<head>\n${escapeReplaceString(injectHtml)}`);
@@ -90,7 +90,7 @@ Inject = {
 		let injectHtml = '';
 		for (id in metas) {
 			const meta = this._evalToText(metas[id], res, html);
-			(injectHtml += `  <meta id='${id.replace("'", '&apos;')}' content='${meta.replace("'", '&apos;')}'>\n`), res;
+			(injectHtml += `  <meta id='${id.replace(/'/g, '&apos;')}' content='${meta.replace(/'/g, '&apos;')}'>\n`), res;
 		}
 
 		return html.replace('<head>', `<head>\n${escapeReplaceString(injectHtml)}`);
