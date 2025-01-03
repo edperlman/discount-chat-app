@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 
 import type { Credentials } from '@rocket.chat/api-client';
 import type { IMessage, IRoom, ITeam, IUpload, IUser, ImageAttachmentProps, SettingValue } from '@rocket.chat/core-typings';
@@ -3322,11 +3323,11 @@ describe('[Rooms]', () => {
 		let testGroup: IRoom;
 		let testDM: IRoom;
 
-		const fakeRoomId = `room.test.${Date.now()}-${Math.random()}`;
-		const fakeUserId = `user.test.${Date.now()}-${Math.random()}`;
+		const fakeRoomId = `room.test.${Date.now()}-${crypto.randomBytes(8).toString('hex')}`;
+		const fakeUserId = `user.test.${Date.now()}-${crypto.randomBytes(8).toString('hex')}`;
 
-		const testChannelName = `channel.test.${Date.now()}-${Math.random()}`;
-		const testGroupName = `group.test.${Date.now()}-${Math.random()}`;
+		const testChannelName = `channel.test.${Date.now()}-${crypto.randomBytes(8).toString('hex')}`;
+		const testGroupName = `group.test.${Date.now()}-${crypto.randomBytes(8).toString('hex')}`;
 
 		let testUser1: TestUser<IUser>;
 		let testUser2: TestUser<IUser>;
