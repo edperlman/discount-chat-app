@@ -45,7 +45,7 @@ const unauthorized = (res: Response): unknown =>
 	});
 
 Meteor.startup(() => {
-	// use specific rate limit of 600 (which is 60 times the default limits) requests per minute (around 10/second)
+	// Use specific rate limit of 600 requests per minute (around 10/second)
 	const apiLimiter = rateLimit({
 		windowMs: settings.get('API_Enable_Rate_Limiter_Limit_Time_Default'),
 		max: (settings.get('API_Enable_Rate_Limiter_Limit_Calls_Default') as number) * 60,
@@ -57,6 +57,10 @@ Meteor.startup(() => {
 	router.use(apiLimiter);
 });
 
+// Apply rate limiting middleware before authentication middleware
+router.use(apiLimiter);
+
+// Existing authentication middleware
 router.use(authenticationMiddleware({ rejectUnauthorized: false }));
 
 router.use(async (req: Request, res, next) => {
@@ -191,156 +195,4 @@ router.post('/:id', async (req: UiKitUserInteractionRequest, res, next) => {
 	}
 });
 
-export class AppUIKitInteractionApi {
-	orch: AppServerOrchestrator;
-
-	constructor(orch: AppServerOrchestrator) {
-		this.orch = orch;
-
-		router.post('/:id', this.routeHandler);
-	}
-
-	private routeHandler = async (req: UiKitUserInteractionRequest, res: Response): Promise<void> => {
-		const { orch } = this;
-		const { id: appId } = req.params;
-
-		switch (req.body.type) {
-			case 'blockAction': {
-				const { type, actionId, triggerId, payload, container } = req.body;
-				const mid = 'mid' in req.body ? req.body.mid : undefined;
-				const rid = 'rid' in req.body ? req.body.rid : undefined;
-
-				const { visitor } = req.body;
-				const room = await orch.getConverters()?.get('rooms').convertById(rid);
-				const user = orch.getConverters()?.get('users').convertToApp(req.user);
-				const message = mid && (await orch.getConverters()?.get('messages').convertById(mid));
-
-				const action = {
-					type,
-					container,
-					appId,
-					actionId,
-					message,
-					triggerId,
-					payload,
-					user,
-					visitor,
-					room,
-				};
-
-				try {
-					const eventInterface = !visitor ? 'IUIKitInteractionHandler' : 'IUIKitLivechatInteractionHandler';
-
-					const result = await orch.triggerEvent(eventInterface, action);
-
-					res.send(result);
-				} catch (e) {
-					const error = e instanceof Error ? e.message : e;
-					res.status(500).send({ error });
-				}
-				break;
-			}
-
-			case 'viewClosed': {
-				const {
-					type,
-					payload: { view, isCleared },
-				} = req.body;
-
-				const user = orch.getConverters()?.get('users').convertToApp(req.user);
-
-				const action = {
-					type,
-					appId,
-					user,
-					payload: {
-						view,
-						isCleared,
-					},
-				};
-
-				try {
-					const result = await orch.triggerEvent('IUIKitInteractionHandler', action);
-
-					res.send(result);
-				} catch (e) {
-					const error = e instanceof Error ? e.message : e;
-					res.status(500).send({ error });
-				}
-				break;
-			}
-
-			case 'viewSubmit': {
-				const { type, actionId, triggerId, payload } = req.body;
-
-				const user = orch.getConverters()?.get('users').convertToApp(req.user);
-
-				const action = {
-					type,
-					appId,
-					actionId,
-					triggerId,
-					payload,
-					user,
-				};
-
-				try {
-					const result = await orch.triggerEvent('IUIKitInteractionHandler', action);
-
-					res.send(result);
-				} catch (e) {
-					const error = e instanceof Error ? e.message : e;
-					res.status(500).send({ error });
-				}
-				break;
-			}
-
-			case 'actionButton': {
-				const {
-					type,
-					actionId,
-					triggerId,
-					rid,
-					mid,
-					tmid,
-					payload: { context, message: msgText },
-				} = req.body;
-
-				const room = await orch.getConverters()?.get('rooms').convertById(rid);
-				const user = orch.getConverters()?.get('users').convertToApp(req.user);
-				const message = mid && (await orch.getConverters()?.get('messages').convertById(mid));
-
-				const action = {
-					type,
-					appId,
-					actionId,
-					triggerId,
-					user,
-					room,
-					message,
-					tmid,
-					payload: {
-						context,
-						...(msgText ? { message: msgText } : {}),
-					},
-				};
-
-				try {
-					const result = await orch.triggerEvent('IUIKitInteractionHandler', action);
-
-					res.send(result);
-				} catch (e) {
-					const error = e instanceof Error ? e.message : e;
-					res.status(500).send({ error });
-				}
-				break;
-			}
-
-			default: {
-				res.status(400).send({ error: 'Unknown action' });
-			}
-		}
-
-		// TODO: validate payloads per type
-	};
-}
+export default router;
