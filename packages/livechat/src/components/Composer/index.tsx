@@ -198,9 +198,9 @@ export class Composer extends Component<ComposerProps, ComposerState> {
 			return;
 		}
 
-		if (this.props.value !== el.innerHTML) {
+		if (this.props.value !== el.textContent) {
 			this.value = this.props.value ?? '';
-			el.innerHTML = this.value;
+			el.textContent = this.value;
 		}
 		replaceCaret(el);
 	}
@@ -214,7 +214,7 @@ export class Composer extends Component<ComposerProps, ComposerState> {
 		const caretPosition = this.getCaretPosition(this.el);
 		const oldText = this.el?.innerText ?? '';
 		const newText = `${oldText.slice(0, caretPosition)}${emoji}&nbsp;${oldText.slice(caretPosition)}`;
-		this.el.innerHTML = newText;
+		this.el.textContent = newText;
 		this.moveCursorToEndAndFocus(caretPosition + emoji.length + 1);
 		onChange?.(this.el.innerText);
 	}
