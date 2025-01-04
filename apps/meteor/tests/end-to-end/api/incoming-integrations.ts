@@ -1,4 +1,5 @@
 import type { Credentials } from '@rocket.chat/api-client';
+import { randomBytes } from 'crypto';
 import type { IIntegration, IMessage, IRoom, IUser } from '@rocket.chat/core-typings';
 import { assert, expect } from 'chai';
 import { after, before, describe, it } from 'mocha';
@@ -29,7 +30,7 @@ describe('[Incoming Integrations]', () => {
 			updatePermission('manage-outgoing-integrations', []),
 		]);
 
-		testChannelName = `channel.test.${Date.now()}-${Math.random()}`;
+		testChannelName = `channel.test.${Date.now()}-${randomBytes(8).toString('hex')}`;
 
 		channel = (await createRoom({ type: 'c', name: testChannelName })).body.channel;
 	});
