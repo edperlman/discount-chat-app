@@ -1,91 +1,71 @@
-import { OAuthServer } from 'oauth2-server';
-import { RateLimiter } from 'meteor/ddp-rate-limiter';
-import { OAuthApps, Users } from '@rocket.chat/models'; // Import Rocket.Chat models
-import { Meteor } from 'meteor/meteor';
+import { OAuthServer } from '@rocket.chat/oauth';
+import express, { Request, Response, NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
+import { Users } from '@rocket.chat/models';
+import { Accounts } from 'meteor/accounts-base';
+import { settings } from '../../../../app/settings/server';
 
-export const oauth = new OAuthServer({
-  model: {}, // Your OAuth server model
+const app = express();
+
+// Apply rate limiting to prevent DoS attacks
+const apiLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per windowMs
+	message: 'Too many requests, please try again later.',
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
-// Add rate limiting rules for `/oauth/authorize` and `/oauth/token`
-RateLimiter.addRule({
-  type: 'method',
-  name: '/oauth/authorize', // Rate limit the authorize endpoint
-  connectionId() {
-    return true; // Apply to all connections
-  },
-}, 100, 15 * 1000); // Allow 100 requests every 15 seconds
+// Apply rate limiter to all routes
+app.use(apiLimiter);
 
-RateLimiter.addRule({
-  type: 'method',
-  name: '/oauth/token', // Rate limit the token endpoint
-  connectionId() {
-    return true; // Apply to all connections
-  },
-}, 100, 15 * 1000); // Allow 100 requests every 15 seconds
+app.post('/oauth/authorize', async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		// Debugging middleware example (can be removed or extended as needed)
+		console.debugMiddleware(req);
 
-export default function setupRoutes(app) {
-  app.post(
-    '/oauth/authorize',
-    async (req, res, next) => {
-      const request = new OAuthServer.Request(req);
-      const response = new OAuthServer.Response(res);
+		// Check if the request allows authorization
+		if (req.body.allow !== 'yes') {
+			return res.status(401).send({
+				error: 'access_denied',
+				error_description: 'The user denied access to your application.',
+			});
+		}
 
-      try {
-        await oauth.authorize(request, response, {
-          authenticateHandler: {
-            async handle() {
-              const clientId = req.body.client_id || req.query.client_id;
+		// Validate access token
+		if (req.body.token && req.body.access_token) {
+			req.body.access_token = req.body.token;
+		}
 
-              if (!clientId) {
-                throw new Error('Missing parameter: client_id');
-              }
+		if (!req.body.access_token) {
+			return res.status(401).send('No token');
+		}
 
-              // Use `Users` model to fetch and update user data
-              const user = await Users.findOne({ _id: res.locals.user.id });
-              if (!user) {
-                throw new Error('User not found');
-              }
+		// Find the user using the hashed token
+		const user = await Users.findOne(
+			{ 'services.resume.loginTokens.hashedToken': Accounts._hashLoginToken(req.body.access_token) },
+			{ projection: { _id: 1 } }
+		);
 
-              if (req.body.allow === 'yes') {
-                await Users.updateOne(
-                  { _id: res.locals.user.id },
-                  { $addToSet: { allowedClients: clientId } }
-                );
-              }
+		// Handle invalid user
+		if (!user) {
+			return res.status(401).send('Invalid token');
+		}
 
-              return { id: user._id };
-            },
-          },
-        });
+		// Set the user ID in the response
+		res.locals.user = { id: user._id };
 
-        res.locals.oauth = { response };
-        next();
-      } catch (err) {
-        next(err);
-      }
-    }
-  );
+		return next();
+	} catch (error) {
+		console.error('Error in /oauth/authorize:', error);
+		res.status(500).send({ error: 'Internal Server Error' });
+	}
+});
 
-  app.post(
-    '/oauth/token',
-    async (req, res, next) => {
-      const request = new OAuthServer.Request(req);
-      const response = new OAuthServer.Response(res);
+// Add other routes as necessary
+app.post('/oauth/token', async (req: Request, res: Response) => {
+	// Example route for token management (placeholder for your implementation)
+	res.status(501).send({ error: 'Not implemented' });
+});
 
-      try {
-        const token = await oauth.token(request, response);
-
-        // Example: Use `OAuthApps` model to validate app
-        const app = await OAuthApps.findOne({ clientId: req.body.client_id });
-        if (!app) {
-          throw new Error('Invalid OAuth application');
-        }
-
-        res.json(token);
-      } catch (err) {
-        res.status(err.status || 500).json(err);
-      }
-    }
-  );
-}
+export default app;
