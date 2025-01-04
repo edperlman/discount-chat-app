@@ -251,7 +251,8 @@ app.use('/sockjs/:id1/:id2/xhr_send', async (req, res) => {
 	try {
 		void proxy(req, res, session, xhrDataRequestProcess, xhrDataResponseProcess);
 	} catch (e) {
-		res.status(400).send(e instanceof Error ? e.message : String(e));
+		console.error("Error occurred:", e);
+		res.status(400).send("An error occurred while processing your request.");
 	}
 });
 
@@ -267,7 +268,8 @@ app.use('/sockjs/:id1/:id2/xhr', async (req, res) => {
 	try {
 		void proxy(req, res, session, undefined, xhrDataResponseProcess);
 	} catch (e) {
-		res.status(400).send(e instanceof Error ? e.message : String(e));
+		console.error("Error occurred:", e);
+		res.status(400).send("An error occurred while processing your request.");
 	}
 });
 
