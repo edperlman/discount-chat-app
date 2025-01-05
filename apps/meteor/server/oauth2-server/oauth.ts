@@ -1,16 +1,16 @@
 import { Users } from '@rocket.chat/models';
 import express from 'express';
-import { RateLimit } from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 import { WebApp } from 'meteor/webapp';
 import { authenticationMiddleware } from '../../../../app/api/server/middlewares/authentication';
 
 const apiServer = express();
 apiServer.disable('x-powered-by');
 
-// Define rate-limiting middleware
-const rateLimiter = RateLimit({
+// Define rate limiting middleware
+const rateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `windowMs`
+    max: 100, // Limit each IP to 100 requests per windowMs
     message: {
         status: 'error',
         message: 'Too many requests, please try again later.',
@@ -19,13 +19,13 @@ const rateLimiter = RateLimit({
 
 const router = express.Router();
 
-// Apply the rate limiter to all routes
+// Apply rate limiting middleware specifically to the problematic route
 router.use(rateLimiter);
 
 // Apply the authentication middleware
 router.use(authenticationMiddleware({ rejectUnauthorized: false }));
 
-router.post('/oauth/authorize', async (req, res, next) => {
+router.post('/oauth/authorize', rateLimiter, async (req, res, next) => {
     try {
         if (req.body.allow !== 'yes') {
             return res.status(401).send({
