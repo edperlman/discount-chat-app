@@ -215,9 +215,11 @@ app.use('/api/*', async (req, res) => {
 	try {
 		void proxy(req, res, session);
 	} catch (e) {
-		res.status(400).send(e instanceof Error ? e.message : String(e));
-	}
-});
+		console.error('An error occurred:', e); // Log the actual error on the server
+		res.status(500).send({
+			message: 'An unexpected error occurred. Please try again later.', // Generic error message
+		});
+	}	
 
 const xhrDataRequestProcess: typeof _processRequest = async (session, requestData) => {
 	const data: string[] = JSON.parse(requestData.toString());
