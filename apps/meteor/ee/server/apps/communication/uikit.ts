@@ -45,22 +45,28 @@ const unauthorized = (res: Response): unknown =>
 	});
 
 Meteor.startup(() => {
-	// Use specific rate limit of 600 requests per minute (around 10/second)
+	// Rate limiter for all API routes
 	const apiLimiter = rateLimit({
-		windowMs: settings.get('API_Enable_Rate_Limiter_Limit_Time_Default'),
-		max: (settings.get('API_Enable_Rate_Limiter_Limit_Calls_Default') as number) * 60,
-		skip: () =>
-			settings.get('API_Enable_Rate_Limiter') !== true ||
-			(process.env.NODE_ENV === 'development' && settings.get('API_Enable_Rate_Limiter_Dev') !== true),
+		windowMs: 15 * 60 * 1000, // 15 minutes
+		max: 100, // Limit each IP to 100 requests per 15 minutes
+		message: 'Too many requests, please try again later.',
+		standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+		legacyHeaders: false, // Disable `X-RateLimit-*` headers
 	});
 
-	router.use(apiLimiter);
+	router.use(apiLimiter); // Apply rate limiter to all routes
 });
 
-// Apply rate limiting middleware before authentication middleware
-router.use(apiLimiter);
+// Add rate limiter specifically to the authentication middleware
+const authRateLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per 15 minutes
+	message: 'Too many authentication attempts, please try again later.',
+	standardHeaders: true,
+	legacyHeaders: false,
+});
 
-// Existing authentication middleware
+router.use(authRateLimiter);
 router.use(authenticationMiddleware({ rejectUnauthorized: false }));
 
 router.use(async (req: Request, res, next) => {
@@ -93,7 +99,7 @@ const corsOptions: cors.CorsOptions = {
 	},
 };
 
-apiServer.use('/api/apps/ui.interaction/', cors(corsOptions), router); // didn't have the rateLimiter option
+apiServer.use('/api/apps/ui.interaction/', cors(corsOptions), router);
 
 type UiKitUserInteractionRequest = Request<
 	UrlParams<'/apps/ui.interaction/:id'>,
@@ -195,4 +201,156 @@ router.post('/:id', async (req: UiKitUserInteractionRequest, res, next) => {
 	}
 });
 
-export default router;
+export class AppUIKitInteractionApi {
+	orch: AppServerOrchestrator;
+
+	constructor(orch: AppServerOrchestrator) {
+		this.orch = orch;
+
+		router.post('/:id', this.routeHandler);
+	}
+
+	private routeHandler = async (req: UiKitUserInteractionRequest, res: Response): Promise<void> => {
+		const { orch } = this;
+		const { id: appId } = req.params;
+
+		switch (req.body.type) {
+			case 'blockAction': {
+				const { type, actionId, triggerId, payload, container } = req.body;
+				const mid = 'mid' in req.body ? req.body.mid : undefined;
+				const rid = 'rid' in req.body ? req.body.rid : undefined;
+
+				const { visitor } = req.body;
+				const room = await orch.getConverters()?.get('rooms').convertById(rid);
+				const user = orch.getConverters()?.get('users').convertToApp(req.user);
+				const message = mid && (await orch.getConverters()?.get('messages').convertById(mid));
+
+				const action = {
+					type,
+					container,
+					appId,
+					actionId,
+					message,
+					triggerId,
+					payload,
+					user,
+					visitor,
+					room,
+				};
+
+				try {
+					const eventInterface = !visitor ? 'IUIKitInteractionHandler' : 'IUIKitLivechatInteractionHandler';
+
+					const result = await orch.triggerEvent(eventInterface, action);
+
+					res.send(result);
+				} catch (e) {
+					const error = e instanceof Error ? e.message : e;
+					res.status(500).send({ error });
+				}
+				break;
+			}
+
+			case 'viewClosed': {
+				const {
+					type,
+					payload: { view, isCleared },
+				} = req.body;
+
+				const user = orch.getConverters()?.get('users').convertToApp(req.user);
+
+				const action = {
+					type,
+					appId,
+					user,
+					payload: {
+						view,
+						isCleared,
+					},
+				};
+
+				try {
+					const result = await orch.triggerEvent('IUIKitInteractionHandler', action);
+
+					res.send(result);
+				} catch (e) {
+					const error = e instanceof Error ? e.message : e;
+					res.status(500).send({ error });
+				}
+				break;
+			}
+
+			case 'viewSubmit': {
+				const { type, actionId, triggerId, payload } = req.body;
+
+				const user = orch.getConverters()?.get('users').convertToApp(req.user);
+
+				const action = {
+					type,
+					appId,
+					actionId,
+					triggerId,
+					payload,
+					user,
+				};
+
+				try {
+					const result = await orch.triggerEvent('IUIKitInteractionHandler', action);
+
+					res.send(result);
+				} catch (e) {
+					const error = e instanceof Error ? e.message : e;
+					res.status(500).send({ error });
+				}
+				break;
+			}
+
+			case 'actionButton': {
+				const {
+					type,
+					actionId,
+					triggerId,
+					rid,
+					mid,
+					tmid,
+					payload: { context, message: msgText },
+				} = req.body;
+
+				const room = await orch.getConverters()?.get('rooms').convertById(rid);
+				const user = orch.getConverters()?.get('users').convertToApp(req.user);
+				const message = mid && (await orch.getConverters()?.get('messages').convertById(mid));
+
+				const action = {
+					type,
+					appId,
+					actionId,
+					triggerId,
+					user,
+					room,
+					message,
+					tmid,
+					payload: {
+						context,
+						...(msgText ? { message: msgText } : {}),
+					},
+				};
+
+				try {
+					const result = await orch.triggerEvent('IUIKitInteractionHandler', action);
+
+					res.send(result);
+				} catch (e) {
+					const error = e instanceof Error ? e.message : e;
+					res.status(500).send({ error });
+				}
+				break;
+			}
+
+			default: {
+				res.status(400).send({ error: 'Unknown action' });
+			}
+		}
+
+		// TODO: validate payloads per type
+	};
+}
