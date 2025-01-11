@@ -157,7 +157,7 @@ app.post('/api/ecdh_proxy/echo', async (req, res) => {
     }
 });
 
-// Corrected block
+
 app.use((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     try {
@@ -168,6 +168,6 @@ app.use((req, res) => {
             message: 'An unexpected error occurred. Please try again later.',
         });
     }
-}); // Missing closing curly brace fixed here
+}); 
 
 export default app;
